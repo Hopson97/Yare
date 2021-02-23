@@ -1,0 +1,55 @@
+#
+#   Common
+#
+
+.vscode
+tags
+
+*.temp
+
+yare/
+OpenBuilder/
+*.zip
+
+texture_packs/ElijahHyper
+
+*.srctrlprj
+*.srctrldb
+*.srctrlbm
+
+
+#
+#   Linux
+#
+
+build/
+bin/
+custom_run.sh
+zcustom_run.sh
+ybuild.sh
+
+#
+#   Windows
+#
+
+*.dll
+CMakeFiles/
+CMakeCache.txt
+*.exe
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.filters
+*.user
+*.vs
+
+Debug/
+Release/
+UnitTests/
+yare-unit-tests/
+
+# Experimental 
+
+experimental/
+_old/
