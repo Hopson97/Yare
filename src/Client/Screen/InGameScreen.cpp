@@ -37,6 +37,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     : Screen(screens)
 // , m_camera(1280.0f / 720.0f, 80)
 {
+
     m_camera.init(1600.0f / 900.0f, 75);
 
     // Create a shader
@@ -45,14 +46,14 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_shader.linkShaders();
     m_shader.bind();
     m_shader.loadUniform("lightPosition", {0, 20, 0});
-
+    
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
     m_cubeVao.addAttribute(cube.positions, 3);
     m_cubeVao.addAttribute(cube.textureCoords, 2);
     m_cubeVao.addAttribute(cube.normals, 3);
     m_cubeVao.addElements(cube.indices);
-
+    
     auto terrain = createTerrainMesh();
     m_terrainVao.bind();
     m_terrainVao.addAttribute(terrain.positions, 3);
@@ -60,6 +61,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_terrainVao.addAttribute(terrain.normals, 3);
     m_terrainVao.addElements(terrain.indices);
 
+    
     std::mt19937 rng(std::time(nullptr));
     std::uniform_real_distribution<float> dist(0, 100);
     for (int i = 0; i < 100; i++) {
@@ -67,6 +69,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
             std::make_pair(glm::vec3{dist(rng), dist(rng), dist(rng)},
                            glm::vec3{dist(rng), dist(rng), dist(rng)}));
     }
+    
 
     m_texture.create("grass.png", true);
 }
@@ -90,7 +93,8 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
     m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
     m_player.rotation.y += static_cast<float>(change.x / 8.0f * 0.5);
-    sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2});
+    sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2},
+                           window);
     m_lastMousePosition = sf::Mouse::getPosition(window);
 
     // Inout for keyboard
@@ -126,15 +130,18 @@ void InGameScreen::onUpdate(float dt)
 
 void InGameScreen::onRender()
 {
-    glCheck(glEnable(GL_CULL_FACE));
-    glCheck(glCullFace(GL_BACK));
+ //   glCheck(glEnable(GL_CULL_FACE));
+ //   glCheck(glCullFace(GL_BACK));
     glCheck(glActiveTexture(GL_TEXTURE0));
     m_texture.bind();
     m_shader.bind();
 
+    
     // Load up projection matrix stuff
     auto projectionView = m_camera.getProjectionView();
+    m_shader.loadUniform("projectionViewMatrix", projectionView);
 
+    
     m_cubeVao.getDrawable().bind();
 
     for (auto& cube : m_cubePositions) {
@@ -143,11 +150,10 @@ void InGameScreen::onRender()
         cube.second.y++;
         cube.second.z++;
         m_shader.loadUniform("modelMatrix", modelmatrix);
-        m_shader.loadUniform("projectionViewMatrix", projectionView);
 
         m_cubeVao.getDrawable().draw();
     }
-
+    
     auto modelmatrix = createModelMatrix({0, 20, 0}, {0, 0, 0});
     m_shader.loadUniform("modelMatrix", modelmatrix);
     m_cubeVao.getDrawable().draw();
@@ -156,7 +162,7 @@ void InGameScreen::onRender()
     m_shader.loadUniform("modelMatrix", modelmatrix);
     m_terrainVao.getDrawable().bind();
     m_terrainVao.getDrawable().draw();
-
+    
     if (m_isPaused) {
         if (m_isSettingsOpened) {
             ClientSettings::get().showSettingsMenu([&] { m_isSettingsOpened = false; });

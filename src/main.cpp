@@ -83,6 +83,7 @@ int main()
             std::cerr << "Failed to load OpenGL, exiting." << std::endl;
             return 1;
         }
+        std::cout << GL_MAJOR_VERSION << " " << GL_MINOR_VERSION << std::endl;
         initGLDebug();
         glClearColor(0.3f, 0.8f, 1.0f, 0.0f);
         glViewport(0, 0, window.getSize().x, window.getSize().y);

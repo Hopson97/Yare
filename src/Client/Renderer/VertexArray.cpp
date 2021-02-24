@@ -55,6 +55,8 @@ GLsizei VertexArray::indicesCount() const
 
 void VertexArray::addAttribute(const std::vector<GLfloat>& data, int nPerVertex)
 {
+    std::cout << "Adding " << data.size() << " with " << nPerVertex << std::endl;
+    ;
     GLuint vbo;
     glCheck(glGenBuffers(1, &vbo));
     glCheck(glBindBuffer(GL_ARRAY_BUFFER, vbo));

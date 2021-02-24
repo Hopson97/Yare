@@ -32,6 +32,21 @@ namespace {
             // Bottom
             ox, oy, oz, w, oy, oz,  w, oy, d,   ox, oy, d
         });
+
+        mesh.textureCoords.insert(mesh.textureCoords.end(), {
+            // Front of the cube
+           0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            // Left
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            // Back
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            // Right
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            // Top
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            // Bottom
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+        });
     
         mesh.normals.insert(mesh.normals.end(), {
             // Front of the cube

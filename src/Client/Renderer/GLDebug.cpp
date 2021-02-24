@@ -99,9 +99,11 @@ void initGLDebug()
 void glCheckError(const char* file, unsigned int line, const char* expression)
 {
     // Get the last error
-    GLenum errorCode = glGetError();
+    GLenum errorCode;
+    bool reported = false;
 
-    while (errorCode != GL_NO_ERROR) {
+    if ((errorCode =  glGetError()) != GL_NO_ERROR) {
+        reported = true;
         std::string fileString = file;
         std::string error = "Unknown error";
         std::string description = "No description";
@@ -143,7 +145,10 @@ void glCheckError(const char* file, unsigned int line, const char* expression)
                   << "\nExpression:\n   " << expression << "\nError description:\n   "
                   << error.c_str() << "\n   " << description.c_str() << "\n"
                   << std::endl;
-        //glCheckError(file, line, expression);
-        exit(-1);
+        errorCode = glGetError();
+    }
+
+    if (reported) {
+        exit(-1);      
     }
 }
