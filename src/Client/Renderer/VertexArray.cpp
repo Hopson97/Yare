@@ -53,20 +53,32 @@ GLsizei VertexArray::indicesCount() const
     return m_indicesCount;
 }
 
-void VertexArray::addAttribute(const std::vector<GLfloat>& data, int nPerVertex)
+void VertexArray::addAttribute(const std::vector<glm::vec2>& data)
 {
-    std::cout << "Adding " << data.size() << " with " << nPerVertex << std::endl;
-    ;
     GLuint vbo;
     glCheck(glGenBuffers(1, &vbo));
     glCheck(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-    glCheck(glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]), data.data(),
+    glCheck(glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0].x) * 2,
+                         data.data(), GL_STATIC_DRAW));
+    glCheck(glVertexAttribPointer(m_vertexBuffers.size(), 2, GL_FLOAT, GL_FALSE, 0,
+                                  (GLvoid*)0));
+    glCheck(glEnableVertexAttribArray(m_vertexBuffers.size()));
+    m_vertexBuffers.push_back(vbo);
+}
+
+void VertexArray::addAttribute(const std::vector<glm::vec3>& data)
+{
+    GLuint vbo;
+    glCheck(glGenBuffers(1, &vbo));
+    glCheck(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    glCheck(glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0].x) * 3, data.data(),
                          GL_STATIC_DRAW));
-    glCheck(glVertexAttribPointer(m_vertexBuffers.size(), nPerVertex, GL_FLOAT, GL_FALSE,
+    glCheck(glVertexAttribPointer(m_vertexBuffers.size(), 3, GL_FLOAT, GL_FALSE,
                                   0, (GLvoid*)0));
     glCheck(glEnableVertexAttribArray(m_vertexBuffers.size()));
     m_vertexBuffers.push_back(vbo);
 }
+
 
 // void VertexArray::addAttribute(const std::vector<GLuint>& data, int nPerVertex)
 //{

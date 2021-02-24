@@ -17,50 +17,34 @@ namespace {
         float oy = offset.y;
         float oz = offset.z;
 
+        //Front, left, back, right, top, bottom
+
         // clang-format off
         mesh.positions.insert(mesh.positions.end(), {
-            // Front of the cube
-            w, h, d,    ox, h, d,   ox, oy, d,  w, oy, d,
-            // Left
-            ox, h, d,   ox, h, oz,  ox, oy, oz, ox, oy, d,
-            // Back
-            ox, h, oz,  w, h, oz,   w, oy, oz,  ox, oy, oz,
-            // Right
-            w, h, oz,   w, h, d,    w, oy, d,   w, oy, oz,
-            // Top
-            w, h, oz,   ox, h, oz,  ox, h, d,   w, h, d,
-            // Bottom
-            ox, oy, oz, w, oy, oz,  w, oy, d,   ox, oy, d
+            {w, h,    d}, {ox,  h,  d}, {ox, oy,  d}, {w,  oy,  d},
+            {ox, h,   d}, {ox,  h, oz}, {ox, oy, oz}, {ox, oy,  d},
+            {ox, h,  oz}, {w,   h, oz}, {w,  oy, oz}, {ox, oy, oz},
+            {w, h,   oz}, {w,   h,  d}, {w,  oy,  d}, {w,  oy, oz},
+            {w, h,   oz}, {ox,  h, oz}, {ox,  h,  d}, {w,   h,  d},
+            {ox, oy, oz}, {w,  oy, oz}, {w,  oy,  d}, {ox, oy,  d}
         });
 
         mesh.textureCoords.insert(mesh.textureCoords.end(), {
-            // Front of the cube
-           0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-            // Left
-            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-            // Back
-            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-            // Right
-            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-            // Top
-            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-            // Bottom
-            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
         });
     
         mesh.normals.insert(mesh.normals.end(), {
-            // Front of the cube
-            0, 0, 1.f,    0, 0, 1.f,    0, 0, 1.f,     0, 0, 1.0f,
-            // Left
-            -1.f, 0, 0,  -1.f, 0, 0,   -1.f, 0, 0,    -1.f, 0, 0, 
-            // Back
-            0, 0, -1.f,   0, 0, -1.f,   0, 0, -1.f,    0, 0, -1.0f,
-            // Right
-            1.f, 0, 0,    1.f, 0, 0,    1.f, 0, 0,     1.f, 0, 0, 
-            // Top
-            0, 1.f, 0,    0, 1.f, 0,    0, 1.f, 0,     0, 1.f, 0,
-            // Bottom
-            0, -1.f, 0,   0, -1.f, 0,   0, -1.f, 0,    0, -1.f, 0,
+            { 0.0f,  0.0f,  1.0f}, { 0.0f,  0.0f,  1.0f}, { 0.0f,  0.0f,  1.0f}, { 0.0f,  0.0f,  1.0f},
+            {-1.0f,  0.0f,  0.0f}, {-1.0f,  0.0f,  0.0f}, {-1.0f,  0.0f,  0.0f}, {-1.0f,  0.0f,  0.0f}, 
+            { 0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f, -1.0f},
+            { 1.0f,  0.0f,  0.0f}, { 1.0f,  0.0f,  0.0f}, { 1.0f,  0.0f,  0.0f}, { 1.0f,  0.0f,  0.0f}, 
+            { 0.0f,  1.0f,  0.0f}, { 0.0f,  1.0f,  0.0f}, { 0.0f,  1.0f,  0.0f}, { 0.0f,  1.0f,  0.0f},
+            { 0.0f, -1.0f,  0.0f}, { 0.0f, -1.0f,  0.0f}, { 0.0f, -1.0f,  0.0f}, { 0.0f, -1.0f,  0.0f},
         });
         // clang-format on
 
@@ -167,24 +151,22 @@ Mesh createTerrainMesh()
             auto fx = static_cast<float>(x);
             auto fy = static_cast<float>(y);
 
-            terrain.positions.push_back(fx / (VERTS - 1) * SIZE);
-            terrain.positions.push_back(getHeight(x, y));
-            terrain.positions.push_back(fy / (VERTS - 1) * SIZE);
+            float vx = fx / (VERTS - 1) * SIZE;
+            float vz = fy / (VERTS - 1) * SIZE;
+            float vy = getHeight(x, y);
+            terrain.positions.emplace_back(vx, vy, vz);
 
             float h1 = getHeight(x - 1, y);
             float h2 = getHeight(x + 1, y);
             float h3 = getHeight(x, y - 1);
             float h4 = getHeight(x, y + 1);
-
             glm::vec3 normal{h1 - h2, 2, h3 - h4};
-            auto n = glm::normalize(normal);
+            glm::vec3 n = glm::normalize(normal);
+            terrain.normals.emplace_back(n.x, n.y, n.z);
 
-            terrain.normals.push_back(n.x);
-            terrain.normals.push_back(n.y);
-            terrain.normals.push_back(n.z);
-
-            terrain.textureCoords.push_back(y % (int)VERTS);
-            terrain.textureCoords.push_back(x % (int)VERTS);
+            float u = y % (int)VERTS;
+            float v = x % (int)VERTS;
+            terrain.textureCoords.emplace_back(u, v);
         }
     }
 

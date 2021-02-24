@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 #include <vector>
+#include <glm/common.hpp>
+#include <glm/glm.hpp>
 
 enum DrawMode {
     Triangles = GL_TRIANGLES,
@@ -33,8 +35,11 @@ class VertexArray final {
     void bind() const;
     GLsizei indicesCount() const;
 
-    void addAttribute(const std::vector<GLfloat>& data, int nPerVertex);
-    void addAttribute(const std::vector<GLuint>& data, int nPerVertex);
+    void addAttribute(const std::vector<glm::vec2>& data);
+    void addAttribute(const std::vector<glm::vec3>& data);
+
+  //  void addAttribute(const std::vector<GLfloat>& data, int nPerVertex);
+  //  void addAttribute(const std::vector<GLuint>& data, int nPerVertex);
     void addElements(const std::vector<GLuint>& indices);
 
     VertexArray& operator=(VertexArray& other) = delete;

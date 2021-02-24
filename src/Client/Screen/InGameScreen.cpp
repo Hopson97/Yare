@@ -49,16 +49,16 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
-    m_cubeVao.addAttribute(cube.positions, 3);
-    m_cubeVao.addAttribute(cube.textureCoords, 2);
-    m_cubeVao.addAttribute(cube.normals, 3);
+    m_cubeVao.addAttribute(cube.positions);
+    m_cubeVao.addAttribute(cube.textureCoords);
+    m_cubeVao.addAttribute(cube.normals);
     m_cubeVao.addElements(cube.indices);
     
     auto terrain = createTerrainMesh();
     m_terrainVao.bind();
-    m_terrainVao.addAttribute(terrain.positions, 3);
-    m_terrainVao.addAttribute(terrain.textureCoords, 2);
-    m_terrainVao.addAttribute(terrain.normals, 3);
+    m_terrainVao.addAttribute(terrain.positions);
+    m_terrainVao.addAttribute(terrain.textureCoords);
+    m_terrainVao.addAttribute(terrain.normals);
     m_terrainVao.addElements(terrain.indices);
 
     

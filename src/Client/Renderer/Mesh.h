@@ -7,10 +7,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
+
+
 struct Mesh {
-    std::vector<GLfloat> positions;
-    std::vector<GLfloat> textureCoords;
-    std::vector<GLfloat> normals;
+    /*
+    struct Vertex {
+        glm::vec3 position;
+        glm::vec3 texCoord;
+        glm::vec3 normal;
+    };**/
+
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec2> textureCoords;
+    std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
     int currentIndex = 0;
 };
