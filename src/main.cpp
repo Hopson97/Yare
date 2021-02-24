@@ -87,6 +87,8 @@ int main()
         initGLDebug();
         glClearColor(0.3f, 0.8f, 1.0f, 0.0f);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
+        glCheck(glEnable(GL_CULL_FACE));
+        glCheck(glCullFace(GL_BACK));
     }
     // Start imgui
     ImGui_SfGl::init(window);

@@ -99,8 +99,8 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
 
 float getNoiseAt(float z, float vx, float vz)
 {
-    const float ROUGH = 0.6f;
-    const float SMOOTH = 300.0f;
+    const float ROUGH = 0.6;
+    const float SMOOTH = 1000.0f;
     const int OCTAVES = 7;
 
     float vertexX = vx;
@@ -125,14 +125,14 @@ float getNoiseAt(float z, float vx, float vz)
 
 Mesh createTerrainMesh()
 {
-    constexpr float SIZE = 256;
-    constexpr float VERTS = 256;
+    constexpr float SIZE = 4096;
+    constexpr float VERTS = 2048;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
-    std::array<float, TOTAL_VERTS> heights;
+    std::vector<float> heights(TOTAL_VERTS);
     for (int y = 0; y < VERTS; y++) {
         for (int x = 0; x < VERTS; x++) {
-            heights[y * VERTS + x] = getNoiseAt(0, (float)x, (float)y) * 100.0f - 110;
+            heights[y * VERTS + x] = getNoiseAt(0, (float)x, (float)y) * 1000 - 900;
         }
     }
 
