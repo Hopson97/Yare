@@ -9,15 +9,15 @@ namespace {
     GLuint createTexture()
     {
         GLuint handle;
-        glCheck(glGenTextures(1, &handle));
-        glCheck(glActiveTexture(GL_TEXTURE0));
+        glGenTextures(1, &handle);
+        glActiveTexture(GL_TEXTURE0);
         return handle;
     }
 
     void destroyTexture(GLuint* texture)
     {
         if (*texture) {
-            glCheck(glDeleteTextures(1, texture));
+            glDeleteTextures(1, texture);
             *texture = 0;
         }
     }
@@ -55,10 +55,10 @@ Texture2d ::~Texture2d()
 void Texture2d::create(unsigned width, unsigned height)
 {
     bind();
-    glCheck(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                         GL_UNSIGNED_BYTE, nullptr));
-    glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
@@ -73,13 +73,13 @@ void Texture2d::create(const std::string& name, bool flip)
         image.flipVertically();
     }
     bind();
-    glCheck(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getSize().x, image.getSize().y,
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr()));
-    glCheck(glGenerateMipmap(GL_TEXTURE_2D));
-    glCheck(
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    glCheck(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    glCheck(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4f));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getSize().x, image.getSize().y, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4f);
 }
 
 void Texture2d::bind() const
@@ -181,7 +181,7 @@ void TextureArray::destroy()
 
 void TextureArray::bind() const
 {
-    glCheck(glBindTexture(GL_TEXTURE_2D_ARRAY, m_handle));
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_handle);
 }
 
 void TextureArray::reset()

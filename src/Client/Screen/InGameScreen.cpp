@@ -28,7 +28,7 @@ glm::mat4 Camera::getProjectionView() const
 }
 
 struct Player {
-    glm::vec3 position{0.0f, 0.0f, 0.0f};
+    glm::vec3 position{0.0f, 10.0f, 0.0f};
     glm::vec3 rotation{0.0f, 180.0f, 0.0f};
     glm::vec3 velocity{0.0f};
 } m_player;
@@ -46,22 +46,28 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_shader.linkShaders();
     m_shader.bind();
     m_shader.loadUniform("lightPosition", {0, 20, 0});
-    
+
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
     m_cubeVao.addAttribute(cube.positions);
     m_cubeVao.addAttribute(cube.textureCoords);
     m_cubeVao.addAttribute(cube.normals);
     m_cubeVao.addElements(cube.indices);
-    
-    auto terrain = createTerrainMesh();
+
+    auto terrain = createTerrainMesh(true);
     m_terrainVao.bind();
     m_terrainVao.addAttribute(terrain.positions);
     m_terrainVao.addAttribute(terrain.textureCoords);
     m_terrainVao.addAttribute(terrain.normals);
     m_terrainVao.addElements(terrain.indices);
 
-    
+    auto water = createTerrainMesh(false);
+    m_waterVao.bind();
+    m_waterVao.addAttribute(water.positions);
+    m_waterVao.addAttribute(water.textureCoords);
+    m_waterVao.addAttribute(water.normals);
+    m_waterVao.addElements(water.indices);
+
     std::mt19937 rng(std::time(nullptr));
     std::uniform_real_distribution<float> dist(0, 100);
     for (int i = 0; i < 100; i++) {
@@ -69,15 +75,14 @@ InGameScreen::InGameScreen(ScreenManager& screens)
             std::make_pair(glm::vec3{dist(rng), dist(rng), dist(rng)},
                            glm::vec3{dist(rng), dist(rng), dist(rng)}));
     }
-    
 
     m_texture.create("grass.png", true);
 }
 
 InGameScreen::~InGameScreen()
 {
-    glCheck(glUseProgram(0));
-    glCheck(glBindVertexArray(0));
+    glUseProgram(0);
+    glBindVertexArray(0);
 }
 
 void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
@@ -130,16 +135,14 @@ void InGameScreen::onUpdate(float dt)
 
 void InGameScreen::onRender()
 {
-    glCheck(glActiveTexture(GL_TEXTURE0));
+    glActiveTexture(GL_TEXTURE0);
     m_texture.bind();
     m_shader.bind();
 
-    
     // Load up projection matrix stuff
     auto projectionView = m_camera.getProjectionView();
     m_shader.loadUniform("projectionViewMatrix", projectionView);
 
-    
     m_cubeVao.getDrawable().bind();
 
     for (auto& cube : m_cubePositions) {
@@ -151,16 +154,16 @@ void InGameScreen::onRender()
 
         m_cubeVao.getDrawable().draw();
     }
-    
-    auto modelmatrix = createModelMatrix({0, 20, 0}, {0, 0, 0});
+    // Render terrain and water
+    auto modelmatrix = createModelMatrix({-50, 0, -50}, {0, 0, 0});
     m_shader.loadUniform("modelMatrix", modelmatrix);
-    m_cubeVao.getDrawable().draw();
 
-    modelmatrix = createModelMatrix({-50, 0, -50}, {0, 0, 0});
-    m_shader.loadUniform("modelMatrix", modelmatrix);
     m_terrainVao.getDrawable().bind();
     m_terrainVao.getDrawable().draw();
-    
+
+    m_waterVao.getDrawable().bind();
+    m_waterVao.getDrawable().draw();
+
     if (m_isPaused) {
         if (m_isSettingsOpened) {
             ClientSettings::get().showSettingsMenu([&] { m_isSettingsOpened = false; });

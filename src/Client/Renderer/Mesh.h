@@ -7,8 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-
-
 struct Mesh {
     /*
     struct Vertex {
@@ -26,4 +24,4 @@ struct Mesh {
 
 Mesh createCubeMesh(const glm::vec3& dimensions);
 Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness = 0.1);
-Mesh createTerrainMesh();
+Mesh createTerrainMesh(bool createBumps);

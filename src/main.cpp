@@ -87,8 +87,8 @@ int main()
         initGLDebug();
         glClearColor(0.3f, 0.8f, 1.0f, 0.0f);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
-        glCheck(glEnable(GL_CULL_FACE));
-        glCheck(glCullFace(GL_BACK));
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
     // Start imgui
     ImGui_SfGl::init(window);
@@ -179,16 +179,16 @@ int main()
         showFPS();
 
         // Render the scene to a framebuffer
-        glCheck(glEnable(GL_DEPTH_TEST));
+        glEnable(GL_DEPTH_TEST);
         framebuffer.bind();
-        glCheck(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         screen.onRender();
 
         // Begin Post Processing
 
         quad.getDrawable().bind();
-        glCheck(glDisable(GL_DEPTH_TEST));
-        glCheck(glActiveTexture(GL_TEXTURE0));
+        glDisable(GL_DEPTH_TEST);
+        glActiveTexture(GL_TEXTURE0);
 
         if (ClientSettings::get().useBloomShaders) {
             blurShader.bind();
@@ -196,14 +196,14 @@ int main()
             do {
                 // Blur the image horizontal
                 blurHorizontalFbo.bind();
-                glCheck(glClear(GL_COLOR_BUFFER_BIT));
+                glClear(GL_COLOR_BUFFER_BIT);
                 framebuffer.bindTexture(1);
                 blurShader.loadUniform("isHorizontalBlur", true);
                 quad.getDrawable().drawArrays();
 
                 // Blur the image vertical
                 blurVerticalFbo.bind();
-                glCheck(glClear(GL_COLOR_BUFFER_BIT));
+                glClear(GL_COLOR_BUFFER_BIT);
                 blurHorizontalFbo.bindTexture(0);
                 blurShader.loadUniform("isHorizontalBlur", false);
                 quad.getDrawable().drawArrays();
@@ -213,12 +213,12 @@ int main()
         // Render to the window
         finalPassShader.bind();
         Framebuffer::unbind(window.getSize().x, window.getSize().y);
-        glCheck(glClear(GL_COLOR_BUFFER_BIT));
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        glCheck(glActiveTexture(GL_TEXTURE0));
+        glActiveTexture(GL_TEXTURE0);
         blurHorizontalFbo.bindTexture(0);
 
-        glCheck(glActiveTexture(GL_TEXTURE1));
+        glActiveTexture(GL_TEXTURE1);
         framebuffer.bindTexture(0);
 
         finalPassShader.loadUniform("bloomToggle", ClientSettings::get().useBloomShaders);

@@ -4,6 +4,7 @@
 #include <array>
 #include <glm/gtc/noise.hpp>
 #include <iostream>
+#include <ctime>
 
 namespace {
     void addCubeToMesh(Mesh& mesh, const glm::vec3& dimensions,
@@ -17,7 +18,7 @@ namespace {
         float oy = offset.y;
         float oz = offset.z;
 
-        //Front, left, back, right, top, bottom
+        // Front, left, back, right, top, bottom
 
         // clang-format off
         mesh.positions.insert(mesh.positions.end(), {
@@ -97,43 +98,61 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
     return cube;
 }
 
-float getNoiseAt(float z, float vx, float vz)
+struct NoiseOptions {
+    int octaves;
+    float amplitude;
+    float smoothness;
+    float roughness;
+    float offset;
+};
+constexpr float SIZE = 256;
+constexpr float VERTS = 256;
+
+float getNoiseAt(const glm::vec2& vertexPosition, const glm::vec2& terrainPosition,
+                 const NoiseOptions& options, int seed)
 {
-    const float ROUGH = 0.6;
-    const float SMOOTH = 1000.0f;
-    const int OCTAVES = 7;
+    // Get voxel X/Z positions
+    float vx = vertexPosition.x + terrainPosition.x * SIZE;
+    float vz = vertexPosition.y + terrainPosition.y * SIZE;
 
-    float vertexX = vx;
-    float vertexZ = vz + z;
-
+    // Begin iterating through the octaves
     float value = 0;
-    float acc = 0;
-    for (int i = 0; i < OCTAVES; i++) {
-        float freq = glm::pow(2.0f, i);
-        float amps = glm::pow(ROUGH, i);
+    float accumulatedAmps = 0;
+    for (int i = 0; i < options.octaves; i++) {
+        float frequency = glm::pow(2.0f, i);
+        float amplitude = glm::pow(options.roughness, i);
 
-        float x = vertexX * freq / SMOOTH;
-        float z = vertexZ * freq / SMOOTH;
+        float x = vx * frequency / options.smoothness;
+        float y = vz * frequency / options.smoothness;
 
-        float noiseValue = glm::simplex(glm::vec2{x, z});
-        noiseValue = (noiseValue + 1.0f) / 2.0f;
-        value += noiseValue * amps;
-        acc += amps;
+        float noise = glm::simplex(glm::vec3{seed + x, seed + y, seed});
+        noise = (noise + 1.0f) / 2.0f;
+        value += noise * amplitude;
+        accumulatedAmps += amplitude;
     }
-    return value / acc;
+    return value / accumulatedAmps;
 }
 
-Mesh createTerrainMesh()
+Mesh createTerrainMesh(bool createBumps)
 {
-    constexpr float SIZE = 4096;
-    constexpr float VERTS = 2048;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
     std::vector<float> heights(TOTAL_VERTS);
-    for (int y = 0; y < VERTS; y++) {
-        for (int x = 0; x < VERTS; x++) {
-            heights[y * VERTS + x] = getNoiseAt(0, (float)x, (float)y) * 1000 - 900;
+
+    if (createBumps) {
+        NoiseOptions ops;
+        ops.amplitude = 50;
+        ops.octaves = 5;
+        ops.smoothness = 200;
+        ops.roughness = 0.5;
+        for (int y = 0; y < VERTS; y++) {
+            for (int x = 0; x < VERTS; x++) {
+                heights[y * VERTS + x] = getNoiseAt({0, 0}, {x, y}, ops, std::time(nullptr));
+            }
         }
+    }
+    else {
+        std::fill(heights.begin(), heights.end(), 0);
     }
 
     auto getHeight = [&](int x, int y) {
