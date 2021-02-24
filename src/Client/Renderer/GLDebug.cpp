@@ -143,7 +143,7 @@ void glCheckError(const char* file, unsigned int line, const char* expression)
                   << "\nExpression:\n   " << expression << "\nError description:\n   "
                   << error.c_str() << "\n   " << description.c_str() << "\n"
                   << std::endl;
-        glCheckError(file, line, expression);
+        //glCheckError(file, line, expression);
         exit(-1);
     }
 }
