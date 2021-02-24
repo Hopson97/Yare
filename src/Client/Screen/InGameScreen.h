@@ -27,6 +27,7 @@ class InGameScreen final : public Screen {
     Texture2d m_texture;
     VertexArray m_cubeVao;
     VertexArray m_terrainVao;
+    VertexArray m_waterVao;
     Shader m_shader;
 
     std::vector<std::pair<glm::vec3, glm::vec3>> m_cubePositions;
