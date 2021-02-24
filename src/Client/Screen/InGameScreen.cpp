@@ -130,8 +130,6 @@ void InGameScreen::onUpdate(float dt)
 
 void InGameScreen::onRender()
 {
- //   glCheck(glEnable(GL_CULL_FACE));
- //   glCheck(glCullFace(GL_BACK));
     glCheck(glActiveTexture(GL_TEXTURE0));
     m_texture.bind();
     m_shader.bind();
