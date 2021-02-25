@@ -19,7 +19,7 @@ struct Camera {
 
 void Camera::init(float aspectRatio, float fov)
 {
-    projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, 0.5f, 2000.0f);
+    projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, 0.01f, 1000.0f);
 }
 
 glm::mat4 Camera::getProjectionView() const
@@ -45,7 +45,14 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_shader.addShader("Static", ShaderType::Fragment);
     m_shader.linkShaders();
     m_shader.bind();
-    m_shader.loadUniform("lightPosition", {0, 20, 0});
+    m_shader.loadUniform("lightPosition", {10, 100, 10});
+
+    // Create a shader
+    m_waterShader.addShader("Static", ShaderType::Vertex);
+    m_waterShader.addShader("Normal", ShaderType::Fragment);
+    m_waterShader.linkShaders();
+    m_waterShader.bind();
+    m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
@@ -76,7 +83,11 @@ InGameScreen::InGameScreen(ScreenManager& screens)
                            glm::vec3{dist(rng), dist(rng), dist(rng)}));
     }
 
-    m_texture.create("grass.png", true);
+    m_grassTexture.create("grass.png", true);
+    m_waterTexture.create("water.jpg", true);
+    m_waterTextureNormal.create("water_norm.jpg", true);
+    m_waterShader.loadUniform("tex", 0);
+    m_waterShader.loadUniform("norm", 1);
 }
 
 InGameScreen::~InGameScreen()
@@ -93,7 +104,7 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     if (m_isPaused) {
         return;
     }
-    auto SPEED = 15.0f;
+    auto SPEED = 0.50f;
     static sf::Vector2i m_lastMousePosition;
     sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
     m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
@@ -136,7 +147,7 @@ void InGameScreen::onUpdate(float dt)
 void InGameScreen::onRender()
 {
     glActiveTexture(GL_TEXTURE0);
-    m_texture.bind();
+    m_grassTexture.bind();
     m_shader.bind();
 
     // Load up projection matrix stuff
@@ -157,12 +168,22 @@ void InGameScreen::onRender()
     // Render terrain and water
     auto modelmatrix = createModelMatrix({-50, 0, -50}, {0, 0, 0});
     m_shader.loadUniform("modelMatrix", modelmatrix);
-
     m_terrainVao.getDrawable().bind();
     m_terrainVao.getDrawable().draw();
 
+    m_waterShader.bind();
+    m_waterShader.loadUniform("modelMatrix", modelmatrix);
+    m_waterShader.loadUniform("projectionViewMatrix", projectionView);
+
+    glActiveTexture(GL_TEXTURE0);
+    m_waterTexture.bind();
+    glActiveTexture(GL_TEXTURE1);
+    m_waterTextureNormal.bind();
+
     m_waterVao.getDrawable().bind();
     m_waterVao.getDrawable().draw();
+
+
 
     if (m_isPaused) {
         if (m_isSettingsOpened) {

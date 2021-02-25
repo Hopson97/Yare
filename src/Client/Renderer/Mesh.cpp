@@ -98,61 +98,50 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
     return cube;
 }
 
-struct NoiseOptions {
-    int octaves;
-    float amplitude;
-    float smoothness;
-    float roughness;
-    float offset;
-};
-constexpr float SIZE = 256;
-constexpr float VERTS = 256;
-
-float getNoiseAt(const glm::vec2& vertexPosition, const glm::vec2& terrainPosition,
-                 const NoiseOptions& options, int seed)
+float getNoiseAt(const glm::vec2& position)
 {
-    // Get voxel X/Z positions
-    float vx = vertexPosition.x + terrainPosition.x * SIZE;
-    float vz = vertexPosition.y + terrainPosition.y * SIZE;
+    const float ROUGH = 0.5;
+    const float SMOOTH = 200.0f;
+    const int OCTAVES = 5;
 
-    // Begin iterating through the octaves
+    float vertexX = position.x;
+    float vertexZ = position.y;
+
     float value = 0;
-    float accumulatedAmps = 0;
-    for (int i = 0; i < options.octaves; i++) {
+    float acc = 0;
+    for (int i = 0; i < OCTAVES; i++) {
         float frequency = glm::pow(2.0f, i);
-        float amplitude = glm::pow(options.roughness, i);
+        float amplitude = glm::pow(ROUGH, i);
 
-        float x = vx * frequency / options.smoothness;
-        float y = vz * frequency / options.smoothness;
+        float x = vertexX * frequency / SMOOTH;
+        float z = vertexZ * frequency / SMOOTH;
 
-        float noise = glm::simplex(glm::vec3{seed + x, seed + y, seed});
-        noise = (noise + 1.0f) / 2.0f;
-        value += noise * amplitude;
-        accumulatedAmps += amplitude;
+        float noiseValue = glm::simplex(glm::vec2{x, z});
+        noiseValue = (noiseValue + 1.0f) / 2.0f;
+        value += noiseValue * amplitude;
+        acc += amplitude;
     }
-    return value / accumulatedAmps;
+    return value / acc;
 }
 
 Mesh createTerrainMesh(bool createBumps)
 {
+    constexpr float SIZE = 256;
+    constexpr float VERTS = 256;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
     std::vector<float> heights(TOTAL_VERTS);
 
     if (createBumps) {
-        NoiseOptions ops;
-        ops.amplitude = 50;
-        ops.octaves = 5;
-        ops.smoothness = 200;
-        ops.roughness = 0.5;
-        for (int y = 0; y < VERTS; y++) {
-            for (int x = 0; x < VERTS; x++) {
-                heights[y * VERTS + x] = getNoiseAt({0, 0}, {x, y}, ops, std::time(nullptr));
-            }
+    for (int y = 0; y < VERTS; y++) {
+        for (int x = 0; x < VERTS; x++) {
+            heights[y * VERTS + x] = getNoiseAt({x,  y}) * 40 - 20;
         }
     }
+    }
     else {
-        std::fill(heights.begin(), heights.end(), 0);
+    std::fill(heights.begin(), heights.end(), 0);
+
     }
 
     auto getHeight = [&](int x, int y) {
