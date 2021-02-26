@@ -9,24 +9,18 @@ in vec3 passFragPosition;
 in vec2 passTextureCoord;
 in vec3 passNormal;
 
-uniform sampler2D tex;
-uniform sampler2D norm;
+uniform sampler2D colourTexture;
+uniform sampler2D normalTexture;
 
-void main() {
+void main() 
+{
+    vec3 colourTex = texture(colourTexture, passTextureCoord).rgb;
+    vec3 normalTex = texture(normalTexture, passTextureCoord).rgb;
+    normalTex = normalize(normalTex * 2.0 - 1.0) + normalize(passNormal); 
 
-    // obtain normal from normal map in range [0,1]
-    vec3 normal = texture(norm, passTextureCoord).rgb;
-    // transform normal vector to range [-1,1]
-    normal = normalize(normal * 2.0 - 1.0) + normalize(passNormal); 
-
-
-    outColour = vec4(1.0, 0.5, 0.5, 1.0);
-    //vec3 normal = normalize(passNormal);
-    vec3 lightDirection = normalize(lightPosition - passFragPosition);
-
-    float diff = max(dot(normal, lightDirection) * 1.3, 0.3);
-    vec3 diffuse = texture(tex, passTextureCoord).rgb * diff;
-
+    vec3    lightDirection  = normalize(lightPosition - passFragPosition);
+    float   diff            = max(dot(normalTex, lightDirection), 0.25);
+    vec3    diffuse         = colourTex * diff;
     outColour = vec4(diffuse, 1.0f);
 
     float brightness = dot(outColour.rgb, vec3(0.2126, 0.7152, 0.0722));

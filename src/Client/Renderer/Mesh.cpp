@@ -171,8 +171,13 @@ Mesh createTerrainMesh(bool createBumps)
             glm::vec3 n = glm::normalize(normal);
             terrain.normals.emplace_back(n.x, n.y, n.z);
 
-            float u = fx / VERTS - 1; // y % (int)VERTS;
-            float v = fy / VERTS - 1; // x % (int)VERTS;
+            //float u = fx / VERTS - 1; // y % (int)VERTS;
+            //float v = fy / VERTS - 1; // x % (int)VERTS;
+
+            float u = y % (int)VERTS;
+            float v = x % (int)VERTS;
+
+
             terrain.textureCoords.emplace_back(u, v);
         }
     }

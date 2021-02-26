@@ -20,6 +20,8 @@ struct Mesh {
     std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
     int currentIndex = 0;
+
+
 };
 
 Mesh createCubeMesh(const glm::vec3& dimensions);

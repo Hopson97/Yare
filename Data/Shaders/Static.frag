@@ -6,13 +6,12 @@ layout (location = 1) out vec4 outBrightColour;
 uniform vec3 lightPosition;
 
 in vec3 passFragPosition;
-in vec3 passTextureCoord;
 in vec3 passNormal;
+in vec2 passTextureCoord;
 
-uniform sampler2DArray textures;
+uniform sampler2D textures;
 
 void main() {
-    outColour = vec4(1.0, 0.5, 0.5, 1.0);
     vec3 normal = normalize(passNormal);
     vec3 lightDirection = normalize(lightPosition - passFragPosition);
 
