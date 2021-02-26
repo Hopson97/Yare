@@ -108,15 +108,19 @@ TextureArray::~TextureArray()
 }
 
 TextureArray::TextureArray(TextureArray&& other)
+    : m_textureNames{std::move(other.m_textureNames)}
+    , m_handle{other.m_handle}
+    , m_maxTextures{other.m_maxTextures}
+    , m_textureSize{other.m_textureSize}
 {
-    *this = std::move(other);
+    other.reset();
 }
 
 TextureArray& TextureArray::operator=(TextureArray&& other)
 {
     destroy();
+    m_textureNames = std::move(other.m_textureNames);
     m_handle = other.m_handle;
-    m_textureCount = other.m_textureCount;
     m_maxTextures = other.m_maxTextures;
     m_textureSize = other.m_textureSize;
     other.reset();
@@ -143,10 +147,10 @@ void TextureArray::create(GLsizei numTextures, GLsizei textureSize)
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 }
 
-GLuint TextureArray::addTexture(const std::string& file)
+GLuint TextureArray::addTexture(const std::string& name)
 {
     sf::Image image;
-    if (!image.loadFromFile(file)) {
+    if (!image.loadFromFile("Data/Textures/" + name)) {
         // Create a error image
         image.create(m_textureSize, m_textureSize);
         for (GLuint y = 0; y < m_textureSize; y++) {
@@ -159,7 +163,7 @@ GLuint TextureArray::addTexture(const std::string& file)
         }
     };
 
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_textureCount, m_textureSize,
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_textureNames.size(), m_textureSize,
                     m_textureSize, 1, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
 
     // Generate Mipmap
@@ -168,13 +172,25 @@ GLuint TextureArray::addTexture(const std::string& file)
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_LOD_BIAS, -1);
 
-    return m_textureCount++;
+    GLuint id = m_textureNames.size();
+    m_textureNames.emplace(name, id);
+
+    return m_textureNames.size() - 1;
+}
+
+GLuint TextureArray::getTextureId(const std::string& name)
+{
+    auto itr = m_textureNames.find(name);
+    if (itr == m_textureNames.end()) {
+        return addTexture(name);
+    }
+    return itr->second;
 }
 
 void TextureArray::destroy()
 {
     destroyTexture(&m_handle);
-    m_textureCount = 0;
+    m_textureNames.clear();
     m_maxTextures = 0;
     m_textureSize = 0;
 }
@@ -187,7 +203,7 @@ void TextureArray::bind() const
 void TextureArray::reset()
 {
     m_handle = 0;
-    m_textureCount = 0;
+    m_textureNames.clear();
     m_maxTextures = 0;
     m_textureSize = 0;
 }

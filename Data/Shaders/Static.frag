@@ -6,10 +6,10 @@ layout (location = 1) out vec4 outBrightColour;
 uniform vec3 lightPosition;
 
 in vec3 passFragPosition;
-in vec2 passTextureCoord;
+in vec3 passTextureCoord;
 in vec3 passNormal;
 
-uniform sampler2D tex;
+uniform sampler2DArray textures;
 
 void main() {
     outColour = vec4(1.0, 0.5, 0.5, 1.0);
@@ -17,7 +17,7 @@ void main() {
     vec3 lightDirection = normalize(lightPosition - passFragPosition);
 
     float diff = max(dot(normal, lightDirection) * 1.3, 0.3);
-    vec3 diffuse = texture(tex, passTextureCoord).rgb * diff;
+    vec3 diffuse = texture(textures, passTextureCoord).rgb * diff;
 
     outColour = vec4(diffuse, 1.0f);
 

@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <string>
+#include <unordered_map>
 
 enum class TexParam { Linear };
 
@@ -36,15 +37,17 @@ class TextureArray final {
     TextureArray& operator=(const TextureArray&) = delete;
 
     void create(GLsizei numTextures, GLsizei textureSize);
-    GLuint addTexture(const std::string& file);
+    GLuint addTexture(const std::string& name);
+    GLuint getTextureId(const std::string& name);
+
     void destroy();
     void bind() const;
 
   private:
     void reset();
 
+    std::unordered_map<std::string, GLuint> m_textureNames;
     GLuint m_handle = 0;
-    GLuint m_textureCount = 0;
     GLuint m_maxTextures = 0;
     GLuint m_textureSize = 0;
 };
