@@ -24,6 +24,7 @@ class InGameScreen final : public Screen {
 
     FirstPersonController m_firstPersonController;
 
+    TextureArray m_textures;
     Texture2d m_grassTexture;
     Texture2d m_waterTexture;
     Texture2d m_waterTextureNormal;

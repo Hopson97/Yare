@@ -14,4 +14,5 @@ void main() {
         colour += texture(bloomTexture, passTexCoord).rgb;
     }
     outColour = vec4(colour, 1.0);
+
 }

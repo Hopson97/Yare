@@ -2,9 +2,9 @@
 
 #include "../../Maths.h"
 #include <array>
+#include <ctime>
 #include <glm/gtc/noise.hpp>
 #include <iostream>
-#include <ctime>
 
 namespace {
     void addCubeToMesh(Mesh& mesh, const glm::vec3& dimensions,
@@ -100,7 +100,7 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
 
 float getNoiseAt(const glm::vec2& position)
 {
-    const float ROUGH = 0.5;
+    const float ROUGH = 0.9;
     const float SMOOTH = 200.0f;
     const int OCTAVES = 5;
 
@@ -133,15 +133,14 @@ Mesh createTerrainMesh(bool createBumps)
     std::vector<float> heights(TOTAL_VERTS);
 
     if (createBumps) {
-    for (int y = 0; y < VERTS; y++) {
-        for (int x = 0; x < VERTS; x++) {
-            heights[y * VERTS + x] = getNoiseAt({x,  y}) * 40 - 20;
+        for (int y = 0; y < VERTS; y++) {
+            for (int x = 0; x < VERTS; x++) {
+                heights[y * VERTS + x] = getNoiseAt({x, y}) * 40 - 20;
+            }
         }
     }
-    }
     else {
-    std::fill(heights.begin(), heights.end(), 0);
-
+        std::fill(heights.begin(), heights.end(), 0);
     }
 
     auto getHeight = [&](int x, int y) {
@@ -172,8 +171,8 @@ Mesh createTerrainMesh(bool createBumps)
             glm::vec3 n = glm::normalize(normal);
             terrain.normals.emplace_back(n.x, n.y, n.z);
 
-            float u = y % (int)VERTS;
-            float v = x % (int)VERTS;
+            float u = fx / VERTS - 1; // y % (int)VERTS;
+            float v = fy / VERTS - 1; // x % (int)VERTS;
             terrain.textureCoords.emplace_back(u, v);
         }
     }
