@@ -24,10 +24,12 @@ class InGameScreen final : public Screen {
 
     FirstPersonController m_firstPersonController;
 
+    sf::Clock m_timer;
 
     Texture2d m_grassTexture;
     Texture2d m_waterTexture;
     Texture2d m_waterNormalTexture;
+    Texture2d m_waterDisplaceTexture;
 
     VertexArray m_cubeVao;
     VertexArray m_terrainVao;

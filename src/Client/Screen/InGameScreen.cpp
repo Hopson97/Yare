@@ -49,13 +49,14 @@ InGameScreen::InGameScreen(ScreenManager& screens)
 
     // Create a shader
     m_waterShader.addShader("Static", ShaderType::Vertex);
-    m_waterShader.addShader("Normal", ShaderType::Fragment);
+    m_waterShader.addShader("Water", ShaderType::Fragment);
     m_waterShader.linkShaders();
     m_waterShader.bind();
     m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
     m_waterShader.loadUniform("colourTexture", 0);
     m_waterShader.loadUniform("normalTexture", 1);
+    m_waterShader.loadUniform("displaceTexture", 2);
 
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
@@ -89,7 +90,8 @@ InGameScreen::InGameScreen(ScreenManager& screens)
 
     m_grassTexture.create("grass.png", true);
     m_waterTexture.create("water.jpg", true);
-    m_waterNormalTexture.create("water_norm.jpg", true);
+    m_waterNormalTexture.create("waternormal.png", true);
+    m_waterDisplaceTexture.create("waterdudv.png", true);
 }
 
 InGameScreen::~InGameScreen()
@@ -177,12 +179,16 @@ void InGameScreen::onRender()
     m_waterShader.bind();
     m_waterShader.loadUniform("modelMatrix", modelmatrix);
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
+    m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
 
     glActiveTexture(GL_TEXTURE0);
     m_waterTexture.bind();
 
     glActiveTexture(GL_TEXTURE1);
     m_waterNormalTexture.bind();
+
+    glActiveTexture(GL_TEXTURE2);
+    m_waterDisplaceTexture.bind();
 
     m_waterVao.getDrawable().bind();
     m_waterVao.getDrawable().draw();

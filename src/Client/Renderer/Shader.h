@@ -26,6 +26,7 @@ class Shader final {
     void linkShaders();
 
     void loadUniform(const char* name, int value);
+    void loadUniform(const char* name, float value);
     void loadUniform(const char* name, const glm::mat4& matrix);
     void loadUniform(const char* name, const glm::vec3& vector);
 
