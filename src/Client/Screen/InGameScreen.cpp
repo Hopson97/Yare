@@ -109,7 +109,7 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     if (m_isPaused) {
         return;
     }
-    auto SPEED = 0.50f;
+    auto SPEED = 5.50f;
     static sf::Vector2i m_lastMousePosition;
     sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
     m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);

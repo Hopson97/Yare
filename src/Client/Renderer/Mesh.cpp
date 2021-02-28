@@ -5,6 +5,7 @@
 #include <ctime>
 #include <glm/gtc/noise.hpp>
 #include <iostream>
+#include <random>
 
 namespace {
     void addCubeToMesh(Mesh& mesh, const glm::vec3& dimensions,
@@ -161,10 +162,13 @@ float getNoiseAt2(const glm::vec2& position, int seed)
 
 Mesh createTerrainMesh(bool isWater)
 {
-    int seed = std::time(nullptr) / 100000;
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> dist(-20000, 20000);
+    int seed = dist(rng);
     if (!isWater) {
         // 16145
-        std::cout << "Seed: " << seed << std::endl;
+        std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
     constexpr float SIZE = 256;
     constexpr float VERTS = 256;
