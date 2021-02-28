@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#include "Mesh.h"
+
 enum DrawMode {
     Triangles = GL_TRIANGLES,
 };
@@ -37,6 +39,7 @@ class VertexArray final {
 
     void addAttribute(const std::vector<glm::vec2>& data);
     void addAttribute(const std::vector<glm::vec3>& data);
+    void addAttribute(const std::vector<Mesh::Colour>& data);
 
     //  void addAttribute(const std::vector<GLfloat>& data, int nPerVertex);
     //  void addAttribute(const std::vector<GLuint>& data, int nPerVertex);

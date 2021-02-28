@@ -41,41 +41,41 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_camera.init(1600.0f / 900.0f, 75);
 
     // Create a shader
-    m_shader.addShader("Static", ShaderType::Vertex);
-    m_shader.addShader("Static", ShaderType::Fragment);
+    m_shader.addShader("Terrain", ShaderType::Vertex);
+    m_shader.addShader("Terrain", ShaderType::Fragment);
     m_shader.linkShaders();
     m_shader.bind();
     m_shader.loadUniform("lightPosition", {10, 100, 10});
 
     // Create a shader
-    m_waterShader.addShader("Static", ShaderType::Vertex);
+    m_waterShader.addShader("Terrain", ShaderType::Vertex);
     m_waterShader.addShader("Water", ShaderType::Fragment);
     m_waterShader.linkShaders();
     m_waterShader.bind();
     m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
-    m_waterShader.loadUniform("colourTexture", 0);
-    m_waterShader.loadUniform("normalTexture", 1);
-    m_waterShader.loadUniform("displaceTexture", 2);
+    // m_waterShader.loadUniform("colourTexture", 0);
+    // m_waterShader.loadUniform("normalTexture", 1);
+    // m_waterShader.loadUniform("displaceTexture", 2);
 
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
     m_cubeVao.addAttribute(cube.positions);
-    m_cubeVao.addAttribute(cube.textureCoords);
+    m_cubeVao.addAttribute(cube.colours);
     m_cubeVao.addAttribute(cube.normals);
     m_cubeVao.addElements(cube.indices);
 
-    auto terrain = createTerrainMesh(true);
+    auto terrain = createTerrainMesh(false);
     m_terrainVao.bind();
     m_terrainVao.addAttribute(terrain.positions);
-    m_terrainVao.addAttribute(terrain.textureCoords);
+    m_terrainVao.addAttribute(terrain.colours);
     m_terrainVao.addAttribute(terrain.normals);
     m_terrainVao.addElements(terrain.indices);
 
-    auto water = createTerrainMesh(false);
+    auto water = createTerrainMesh(true);
     m_waterVao.bind();
     m_waterVao.addAttribute(water.positions);
-    m_waterVao.addAttribute(water.textureCoords);
+    m_waterVao.addAttribute(water.colours);
     m_waterVao.addAttribute(water.normals);
     m_waterVao.addElements(water.indices);
 
@@ -87,11 +87,10 @@ InGameScreen::InGameScreen(ScreenManager& screens)
                            glm::vec3{dist(rng), dist(rng), dist(rng)}));
     }
 
-
-    m_grassTexture.create("grass.png", true);
-    m_waterTexture.create("water.jpg", true);
-    m_waterNormalTexture.create("waternormal.png", true);
-    m_waterDisplaceTexture.create("waterdudv.png", true);
+    // m_grassTexture.create("grass.png", true);
+    // m_waterTexture.create("water.jpg", true);
+    //    m_waterNormalTexture.create("waternormal.png", true);
+    //  m_waterDisplaceTexture.create("waterdudv.png", true);
 }
 
 InGameScreen::~InGameScreen()
@@ -151,9 +150,9 @@ void InGameScreen::onUpdate(float dt)
 void InGameScreen::onRender()
 {
     m_shader.bind();
-    
-    glActiveTexture(GL_TEXTURE0);
-    m_grassTexture.bind();
+
+    //   glActiveTexture(GL_TEXTURE0);
+    // m_grassTexture.bind();
 
     // Load up projection matrix stuff
     auto projectionView = m_camera.getProjectionView();
@@ -176,19 +175,21 @@ void InGameScreen::onRender()
     m_terrainVao.getDrawable().bind();
     m_terrainVao.getDrawable().draw();
 
+glEnable(GL_BLEND); 
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   
     m_waterShader.bind();
     m_waterShader.loadUniform("modelMatrix", modelmatrix);
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
-    m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+    // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
 
-    glActiveTexture(GL_TEXTURE0);
-    m_waterTexture.bind();
+    // glActiveTexture(GL_TEXTURE0);
+    // m_waterTexture.bind();
 
-    glActiveTexture(GL_TEXTURE1);
-    m_waterNormalTexture.bind();
+    // glActiveTexture(GL_TEXTURE1);
+    // m_waterNormalTexture.bind();
 
-    glActiveTexture(GL_TEXTURE2);
-    m_waterDisplaceTexture.bind();
+    // glActiveTexture(GL_TEXTURE2);
+    // m_waterDisplaceTexture.bind();
 
     m_waterVao.getDrawable().bind();
     m_waterVao.getDrawable().draw();

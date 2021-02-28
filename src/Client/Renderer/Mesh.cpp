@@ -30,13 +30,22 @@ namespace {
             {ox, oy, oz}, {w,  oy, oz}, {w,  oy,  d}, {ox, oy,  d}
         });
 
-        mesh.textureCoords.insert(mesh.textureCoords.end(), {
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
-           {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //mesh.textureCoords.insert(mesh.textureCoords.end(), {
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //   {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f},
+        //});
+
+        mesh.colours.insert(mesh.colours.end(), {
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
+           {0, 0, 0}, {255, 0, 0}, {0, 255, 0}, {255, 255, 0},
         });
     
         mesh.normals.insert(mesh.normals.end(), {
@@ -100,8 +109,8 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
 
 float getNoiseAt(const glm::vec2& position)
 {
-    const float ROUGH = 0.9;
-    const float SMOOTH = 200.0f;
+    const float ROUGH = 0.7;
+    const float SMOOTH = 250.0f;
     const int OCTAVES = 5;
 
     float vertexX = position.x;
@@ -121,10 +130,36 @@ float getNoiseAt(const glm::vec2& position)
         value += noiseValue * amplitude;
         acc += amplitude;
     }
-    return value / acc;
+    return value / acc * 50 - 30;
 }
 
-Mesh createTerrainMesh(bool createBumps)
+float getNoiseAt2(const glm::vec2& position)
+{
+    const float ROUGH = 1.0;
+    const float SMOOTH =50.0f;
+    const int OCTAVES = 5;
+
+    float vertexX = position.x;
+    float vertexZ = position.y;
+
+    float value = 0;
+    float acc = 0;
+    for (int i = 0; i < OCTAVES; i++) {
+        float frequency = glm::pow(2.0f, i);
+        float amplitude = glm::pow(ROUGH, i);
+
+        float x = vertexX * frequency / SMOOTH;
+        float z = vertexZ * frequency / SMOOTH;
+
+        float noiseValue = glm::simplex(glm::vec2{x, z});
+        noiseValue = (noiseValue + 1.0f) / 2.0f;
+        value += noiseValue * amplitude;
+        acc += amplitude;
+    }
+    return value / acc * 5 - 4;
+}
+
+Mesh createTerrainMesh(bool isWater)
 {
     constexpr float SIZE = 256;
     constexpr float VERTS = 256;
@@ -132,10 +167,10 @@ Mesh createTerrainMesh(bool createBumps)
 
     std::vector<float> heights(TOTAL_VERTS);
 
-    if (createBumps) {
+    if (!isWater) {
         for (int y = 0; y < VERTS; y++) {
             for (int x = 0; x < VERTS; x++) {
-                heights[y * VERTS + x] = getNoiseAt({x, y}) * 40 - 20;
+                heights[y * VERTS + x] = (getNoiseAt({x, y}) + getNoiseAt2({x, y}));
             }
         }
     }
@@ -171,14 +206,39 @@ Mesh createTerrainMesh(bool createBumps)
             glm::vec3 n = glm::normalize(normal);
             terrain.normals.emplace_back(n.x, n.y, n.z);
 
-            //float u = fx / VERTS - 1; // y % (int)VERTS;
-            //float v = fy / VERTS - 1; // x % (int)VERTS;
+            Mesh::Colour colour;
 
-            float u = y % (int)VERTS;
-            float v = x % (int)VERTS;
+            if (isWater) {
+                colour.b = 255;
+            }
+            else {
+                int height = static_cast<int>(vy);
+                if (height > 10) {
+                    colour = Mesh::Colour{255, 255, 255};
+                }
+                else if (height > 6) {
+                    colour = Mesh::Colour{100, 100, 100};
+                }
+                else if (height > 1) {
+                    colour.g = 255;
+                }
+                else if (height > -1) {
+                    colour.r = 255;
+                    colour.g = 220;
+                    colour.b = 127;
+                }
+                else {
+                    colour = Mesh::Colour{100, 100, 100};
+                }
+            }
+            terrain.colours.emplace_back(colour);
 
+            // float u = fx / VERTS - 1; // y % (int)VERTS;
+            // float v = fy / VERTS - 1; // x % (int)VERTS;
 
-            terrain.textureCoords.emplace_back(u, v);
+            // float u = y % (int)VERTS;
+            // float v = x % (int)VERTS;
+            // terrain.textureCoords.emplace_back(u, v);
         }
     }
 
