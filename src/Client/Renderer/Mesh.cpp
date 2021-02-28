@@ -107,7 +107,7 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
     return cube;
 }
 
-float getNoiseAt(const glm::vec2& position)
+float getNoiseAt(const glm::vec2& position, int seed)
 {
     const float ROUGH = 0.7;
     const float SMOOTH = 250.0f;
@@ -125,7 +125,7 @@ float getNoiseAt(const glm::vec2& position)
         float x = vertexX * frequency / SMOOTH;
         float z = vertexZ * frequency / SMOOTH;
 
-        float noiseValue = glm::simplex(glm::vec2{x, z});
+        float noiseValue = glm::simplex(glm::vec3{x, z, seed});
         noiseValue = (noiseValue + 1.0f) / 2.0f;
         value += noiseValue * amplitude;
         acc += amplitude;
@@ -133,9 +133,9 @@ float getNoiseAt(const glm::vec2& position)
     return value / acc * 50 - 30;
 }
 
-float getNoiseAt2(const glm::vec2& position)
+float getNoiseAt2(const glm::vec2& position, int seed)
 {
-    const float ROUGH = 1.0;
+    const float ROUGH = 1.2;
     const float SMOOTH =50.0f;
     const int OCTAVES = 5;
 
@@ -151,7 +151,7 @@ float getNoiseAt2(const glm::vec2& position)
         float x = vertexX * frequency / SMOOTH;
         float z = vertexZ * frequency / SMOOTH;
 
-        float noiseValue = glm::simplex(glm::vec2{x, z});
+        float noiseValue = glm::simplex(glm::vec3{x, z, seed});
         noiseValue = (noiseValue + 1.0f) / 2.0f;
         value += noiseValue * amplitude;
         acc += amplitude;
@@ -160,7 +160,12 @@ float getNoiseAt2(const glm::vec2& position)
 }
 
 Mesh createTerrainMesh(bool isWater)
-{
+{                                     
+    int seed = std::time(nullptr) / 100000;
+    if (!isWater) {
+        //16145
+    std::cout << "Seed: " << seed << std::endl;
+    }
     constexpr float SIZE = 256;
     constexpr float VERTS = 256;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
@@ -170,7 +175,7 @@ Mesh createTerrainMesh(bool isWater)
     if (!isWater) {
         for (int y = 0; y < VERTS; y++) {
             for (int x = 0; x < VERTS; x++) {
-                heights[y * VERTS + x] = (getNoiseAt({x, y}) + getNoiseAt2({x, y}));
+                heights[y * VERTS + x] = getNoiseAt({x, y}, seed) + getNoiseAt2({x, y}, seed);
             }
         }
     }
