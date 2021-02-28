@@ -22,7 +22,7 @@ void main()
     float   diff            = max(dot(normal, lightDirection), 0.25);
     
     vec3    diffuse         = passColour.rgb * diff;
-    outColour = vec4(diffuse, 1.0f);
+    outColour = vec4(diffuse, passColour.a);
 
     float brightness = dot(outColour.rgb, vec3(0.2126, 0.7152, 0.0722));
     if(brightness > 0.9) 

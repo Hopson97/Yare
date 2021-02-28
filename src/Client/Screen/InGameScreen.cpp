@@ -37,6 +37,8 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     : Screen(screens)
 // , m_camera(1280.0f / 720.0f, 80)
 {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_camera.init(1600.0f / 900.0f, 75);
 
@@ -175,8 +177,6 @@ void InGameScreen::onRender()
     m_terrainVao.getDrawable().bind();
     m_terrainVao.getDrawable().draw();
 
-glEnable(GL_BLEND); 
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   
     m_waterShader.bind();
     m_waterShader.loadUniform("modelMatrix", modelmatrix);
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
@@ -191,9 +191,12 @@ glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glActiveTexture(GL_TEXTURE2);
     // m_waterDisplaceTexture.bind();
 
+    glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
+
     m_waterVao.getDrawable().bind();
     m_waterVao.getDrawable().draw();
 
+    glCullFace(GL_BACK);
     if (m_isPaused) {
         if (m_isSettingsOpened) {
             ClientSettings::get().showSettingsMenu([&] { m_isSettingsOpened = false; });
