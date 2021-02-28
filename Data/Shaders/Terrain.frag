@@ -19,7 +19,7 @@ void main() {
 
 
     vec3    diffuse         = passColour.rgb * diff;
-    outColour = vec4(diffuse, 1.0f);
+    outColour = vec4(diffuse, passColour.a);
 
 
 

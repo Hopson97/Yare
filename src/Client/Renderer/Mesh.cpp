@@ -136,7 +136,7 @@ float getNoiseAt(const glm::vec2& position, int seed)
 float getNoiseAt2(const glm::vec2& position, int seed)
 {
     const float ROUGH = 1.2;
-    const float SMOOTH =50.0f;
+    const float SMOOTH = 50.0f;
     const int OCTAVES = 5;
 
     float vertexX = position.x;
@@ -160,11 +160,11 @@ float getNoiseAt2(const glm::vec2& position, int seed)
 }
 
 Mesh createTerrainMesh(bool isWater)
-{                                     
+{
     int seed = std::time(nullptr) / 100000;
     if (!isWater) {
-        //16145
-    std::cout << "Seed: " << seed << std::endl;
+        // 16145
+        std::cout << "Seed: " << seed << std::endl;
     }
     constexpr float SIZE = 256;
     constexpr float VERTS = 256;
@@ -175,7 +175,8 @@ Mesh createTerrainMesh(bool isWater)
     if (!isWater) {
         for (int y = 0; y < VERTS; y++) {
             for (int x = 0; x < VERTS; x++) {
-                heights[y * VERTS + x] = getNoiseAt({x, y}, seed) + getNoiseAt2({x, y}, seed);
+                heights[y * VERTS + x] =
+                    getNoiseAt({x, y}, seed) + getNoiseAt2({x, y}, seed);
             }
         }
     }
@@ -214,7 +215,10 @@ Mesh createTerrainMesh(bool isWater)
             Mesh::Colour colour;
 
             if (isWater) {
-                colour.b = 255;
+                colour.r = 69;
+                colour.g = 255;
+                colour.b = 241;
+                colour.a = 200;
             }
             else {
                 int height = static_cast<int>(vy);
@@ -224,10 +228,10 @@ Mesh createTerrainMesh(bool isWater)
                 else if (height > 6) {
                     colour = Mesh::Colour{100, 100, 100};
                 }
-                else if (height > 1) {
+                else if (height > 0) {
                     colour.g = 255;
                 }
-                else if (height > -1) {
+                else if (height > -3) {
                     colour.r = 255;
                     colour.g = 220;
                     colour.b = 127;
