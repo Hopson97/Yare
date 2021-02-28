@@ -77,6 +77,21 @@ void VertexArray::addAttribute(const std::vector<glm::vec3>& data)
     m_vertexBuffers.push_back(vbo);
 }
 
+void VertexArray::addAttribute(const std::vector<Mesh::Colour>& data)
+{
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]) * 4, data.data(),
+                 GL_STATIC_DRAW);
+
+    // TODO See if nullptr works in place of the GLvoid cast
+    glVertexAttribPointer(m_vertexBuffers.size(), 4, GL_UNSIGNED_BYTE, GL_TRUE, 0,
+                          (GLvoid*)0);
+    glEnableVertexAttribArray(m_vertexBuffers.size());
+    m_vertexBuffers.push_back(vbo);
+}
+
 // void VertexArray::addAttribute(const std::vector<GLuint>& data, int nPerVertex)
 //{
 //    GLuint vbo;

@@ -3,12 +3,15 @@
 #include "Texture.h"
 #include <vector>
 
-class Framebuffer {
+class Framebuffer final {
   public:
     Framebuffer(GLuint width, GLuint height);
     Framebuffer& operator=(Framebuffer&& other) noexcept;
     Framebuffer(Framebuffer&& other) noexcept;
     ~Framebuffer();
+
+    Framebuffer& operator=(Framebuffer& other) = delete;
+    Framebuffer(Framebuffer& other) = delete;
 
     void attachTexture();
     void finalise();
@@ -16,9 +19,6 @@ class Framebuffer {
     void bind() const;
     void bindTexture(unsigned index) const;
     static void unbind(GLuint width, GLuint height);
-
-    Framebuffer& operator=(Framebuffer& other) = delete;
-    Framebuffer(Framebuffer& other) = delete;
 
   private:
     std::vector<Texture2d> m_textureAttachments;

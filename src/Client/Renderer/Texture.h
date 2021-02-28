@@ -6,7 +6,7 @@
 
 enum class TexParam { Linear };
 
-class Texture2d {
+class Texture2d final {
   public:
     Texture2d();
     Texture2d& operator=(Texture2d&& other) noexcept;

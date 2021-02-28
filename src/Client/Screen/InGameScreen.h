@@ -26,15 +26,15 @@ class InGameScreen final : public Screen {
 
     sf::Clock m_timer;
 
-    Texture2d m_grassTexture;
-    Texture2d m_waterTexture;
-    Texture2d m_waterNormalTexture;
-    Texture2d m_waterDisplaceTexture;
+    // Texture2d m_grassTexture;
+    // Texture2d m_waterTexture;
+    // Texture2d m_waterNormalTexture;
+    // Texture2d m_waterDisplaceTexture;
 
     VertexArray m_cubeVao;
     VertexArray m_terrainVao;
     VertexArray m_waterVao;
-    
+
     Shader m_shader;
     Shader m_waterShader;
 
