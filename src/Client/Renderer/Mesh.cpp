@@ -161,8 +161,8 @@ Mesh createTerrainMesh(bool isWater)
         // -7112
         std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
-    constexpr float SIZE = 512;
-    constexpr float VERTS = 512;
+    constexpr float SIZE = 256;
+    constexpr float VERTS = 256;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
     std::vector<float> heights(TOTAL_VERTS);
@@ -227,7 +227,7 @@ Mesh createTerrainMesh(bool isWater)
                 else if (height > 0) {
                     colour.g = 255;
                 }
-                else if (height > -3) {
+                else if (height > -4) {
                     colour.r = 255;
                     colour.g = 220;
                     colour.b = 127;
@@ -239,11 +239,11 @@ Mesh createTerrainMesh(bool isWater)
             terrain.colours.emplace_back(colour);
 
             if (isWater) {
-                float u = fx / VERTS - 1;
-                float v = fy / VERTS - 1;
+                // float u = fx / VERTS - 1;
+                // float v = fy / VERTS - 1;
 
-                // float u = y % (int)VERTS;
-                // float v = x % (int)VERTS;
+                float u = y % (int)VERTS;
+                float v = x % (int)VERTS;
                 terrain.textureCoords.emplace_back(u, v);
             }
 
@@ -263,9 +263,10 @@ Mesh createTerrainMesh(bool isWater)
             int bottomLeft = ((y + 1) * VERTS) + x;
             int bottomRight = bottomLeft + 1;
 
-            terrain.indices.push_back(topLeft);
             terrain.indices.push_back(bottomLeft);
             terrain.indices.push_back(topRight);
+            terrain.indices.push_back(topLeft);
+
             terrain.indices.push_back(topRight);
             terrain.indices.push_back(bottomLeft);
             terrain.indices.push_back(bottomRight);

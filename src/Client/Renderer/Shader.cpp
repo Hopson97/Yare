@@ -118,6 +118,11 @@ void Shader::loadUniform(const char* name, const glm::mat4& matrix)
     glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void Shader::loadUniform(const char* name, const glm::vec4& vector)
+{
+    glUniform4fv(getUniformLocation(name), 1, glm::value_ptr(vector));
+}
+
 void Shader::loadUniform(const char* name, const glm::vec3& vector)
 {
     glUniform3fv(getUniformLocation(name), 1, glm::value_ptr(vector));
