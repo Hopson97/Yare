@@ -17,8 +17,8 @@ out vec2 passTextureCoord;
 vec4 getWorldPos()
 {
     vec4 worldPos = modelMatrix * vec4(inVertexCoord, 1.0);
-    worldPos.y += sin((time + worldPos.x) * 1.5) / 10.0;
-    worldPos.y += cos((time + worldPos.z) * 1.5) / 10.0;
+    //worldPos.y += sin((time + worldPos.x) * 1.5) / 10.0;
+    //worldPos.y += cos((time + worldPos.z) * 1.5) / 10.0;
     return worldPos;
 }
 

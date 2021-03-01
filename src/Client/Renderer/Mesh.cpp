@@ -158,11 +158,12 @@ void Terrain::createTerrainMesh(bool isWater)
     int seed = dist(rng);
     if (!isWater) {
         // 16145
+        // 18090
         // -7112
         std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
-    constexpr float SIZE = 256;
-    constexpr float VERTS = 256;
+    constexpr float SIZE = 1024;
+    constexpr float VERTS = 1024;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
     std::vector<float> heights(TOTAL_VERTS);
@@ -258,22 +259,36 @@ void Terrain::createTerrainMesh(bool isWater)
         }
     }
 
-    for (int y = 0; y < VERTS - 1; y++) {
-        for (int x = 0; x < VERTS - 1; x++) {
-            int topLeft = (y * VERTS) + x;
-            int topRight = topLeft + 1;
-            int bottomLeft = ((y + 1) * VERTS) + x;
-            int bottomRight = bottomLeft + 1;
+    auto createLOD = [&](int level) {
+        LOD& lod = lods.emplace_back();
+        lod.start = mesh.indices.size();
+        for (int y = 0; y < (VERTS - level); y += level) {
+            for (int x = 0; x < (VERTS - level); x += level) {
+                int topLeft = (y * VERTS) + x;
+                int topRight = topLeft + level;
+                int bottomLeft = ((y + level) * VERTS) + x;
+                int bottomRight = bottomLeft + level;
 
-            mesh.indices.push_back(bottomLeft);
-            mesh.indices.push_back(topRight);
-            mesh.indices.push_back(topLeft);
+                mesh.indices.push_back(bottomLeft);
+                mesh.indices.push_back(topRight);
+                mesh.indices.push_back(topLeft);
 
-            mesh.indices.push_back(topRight);
-            mesh.indices.push_back(bottomLeft);
-            mesh.indices.push_back(bottomRight);
+                mesh.indices.push_back(topRight);
+                mesh.indices.push_back(bottomLeft);
+                mesh.indices.push_back(bottomRight);
+                lod.count += 6;
+            }
         }
-    }
+    };
+    createLOD(1);
+    createLOD(2);
+    createLOD(4);
+    createLOD(8);
+    createLOD(16);
+    createLOD(32);
+    createLOD(64);
+    createLOD(128);
+
 
     vao.bind();
     vao.addAttribute(mesh.positions);
@@ -287,6 +302,8 @@ void Terrain::createTerrainMesh(bool isWater)
 
 void Terrain::render(int LOD)
 {
-    (void)LOD;
-    vao.getDrawable().bindDrawElements();
+    LOD += 1;
+    GLuint count = lods[LOD - 1].count;
+    GLuint start = lods[LOD - 1].start;
+    vao.getDrawable().bindDrawElements(count, start);
 }
