@@ -11,7 +11,7 @@ class MainMenuScreen final : public Screen {
   public:
     MainMenuScreen(ScreenManager& stack);
 
-    void onRender() override;
+    void onRender(Framebuffer&) override;
 
   private:
     Menu m_activeMenu = Menu::MainMenuScreen;

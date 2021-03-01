@@ -40,6 +40,7 @@ struct Mesh final {
 
     std::vector<glm::vec3> positions;
     std::vector<Colour> colours;
+    std::vector<glm::vec2> textureCoords;
     std::vector<glm::vec3> normals;
     std::vector<GLuint> indices;
     int currentIndex = 0;

@@ -182,7 +182,7 @@ int main()
         glEnable(GL_DEPTH_TEST);
         framebuffer.bind();
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        screen.onRender();
+        screen.onRender(framebuffer);
 
         // Begin Post Processing
 
