@@ -26,15 +26,15 @@ struct Drawable final {
 
     void drawArrays(int count = 6, DrawMode mode = DrawMode::Triangles) const;
 
-    void draw(int count, const void* indices = nullptr,
+    void draw(int count, GLuint start = 0,
               DrawMode mode = DrawMode::Triangles) const;
 
-    void bindDrawElements(int count, const void* indices = nullptr,
+    void bindDrawElements(int count, GLuint start = 0,
                           DrawMode mode = DrawMode::Triangles) const;
 
-    void draw(const void* indices = nullptr, DrawMode mode = DrawMode::Triangles) const;
+    void draw(GLuint start = 0, DrawMode mode = DrawMode::Triangles) const;
 
-    void bindDrawElements(const void* indices = nullptr,
+    void bindDrawElements(GLuint start = 0,
                           DrawMode mode = DrawMode::Triangles) const;
 };
 

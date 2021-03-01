@@ -27,6 +27,12 @@ struct Mesh final {
 };
 
 struct Terrain {
+    struct LOD {
+        GLuint start = 0;
+        GLuint count = 0;
+    };
+    std::vector<LOD> lods;
+
     VertexArray vao;
 
     void createTerrainMesh(bool createBumps);

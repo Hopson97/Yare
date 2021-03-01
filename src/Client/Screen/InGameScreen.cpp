@@ -7,6 +7,9 @@
 #include <iostream>
 #include <random>
 
+int lod;
+bool mouse = true;
+
 struct Camera {
     glm::vec3 position{0.0f};
     glm::vec3 rotation{0, 0, 0};
@@ -104,14 +107,18 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     if (m_isPaused) {
         return;
     }
+
+    if (mouse) {
+        static sf::Vector2i m_lastMousePosition;
+        sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
+        m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
+        m_player.rotation.y += static_cast<float>(change.x / 8.0f * 0.5);
+        sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2},
+                            window);
+        m_lastMousePosition = sf::Mouse::getPosition(window);
+    }
+
     auto SPEED = 20.2f;
-    static sf::Vector2i m_lastMousePosition;
-    sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
-    m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
-    m_player.rotation.y += static_cast<float>(change.x / 8.0f * 0.5);
-    sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2},
-                           window);
-    m_lastMousePosition = sf::Mouse::getPosition(window);
 
     // Inout for keyboard
     if (keyboard.isKeyDown(sf::Keyboard::W)) {
@@ -166,16 +173,16 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
     m_waterShader.bind();
     auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
     auto projectionView = m_camera.getProjectionView();
-    m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+   // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
     m_waterShader.loadUniform("modelMatrix", modelmatrix);
 
     glActiveTexture(GL_TEXTURE0);
-    m_reflection.bind();
-    // m_waterTexture.bind();
+    //m_reflection.bind();
+    m_waterTexture.bind();
 
     glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
-    m_water.render(1);
+    m_water.render(lod);
     /*
 
         // Render water
@@ -225,6 +232,12 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
             showPauseMenu();
         }
     }
+
+    if (ImGui::Begin("LOD Menu")) {
+        ImGui::SliderInt("LOD Level", &lod, 0, 6);
+    }
+    ImGui::End();
+
 }
 
 void InGameScreen::renderScene(const glm::vec4& clippingPlane)
@@ -251,13 +264,14 @@ void InGameScreen::renderScene(const glm::vec4& clippingPlane)
     {
         auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
         m_shader.loadUniform("modelMatrix", modelmatrix);
-        m_terrain.render(1);
+        m_terrain.render(lod);
     }
 }
 
 void InGameScreen::showPauseMenu()
 {
     if (imguiBeginCustom("P A U S E D")) {
+        ImGui::Checkbox("Control Mouse", &mouse);
         if (imguiButtonCustom("Resume Game")) {
             m_isPaused = false;
         }
