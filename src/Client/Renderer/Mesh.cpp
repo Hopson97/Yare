@@ -136,7 +136,7 @@ float getNoiseAt(const glm::vec2& position, int seed, NoiseOptions& options)
     return value / acc * options.amplitude + options.offset;
 }
 
-Mesh createTerrainMesh(bool isWater)
+void Terrain::createTerrainMesh(bool isWater)
 {
     NoiseOptions terrainNoise;
     terrainNoise.roughness = 0.7;
@@ -189,7 +189,7 @@ Mesh createTerrainMesh(bool isWater)
         }
     };
 
-    Mesh terrain;
+    Mesh mesh;
     for (int y = 0; y < VERTS; y++) {
         for (int x = 0; x < VERTS; x++) {
             auto fx = static_cast<float>(x);
@@ -198,7 +198,7 @@ Mesh createTerrainMesh(bool isWater)
             float vx = fx / (VERTS - 1) * SIZE;
             float vz = fy / (VERTS - 1) * SIZE;
             float vy = getHeight(x, y);
-            terrain.positions.emplace_back(vx, vy, vz);
+            mesh.positions.emplace_back(vx, vy, vz);
 
             float h1 = getHeight(x - 1, y);
             float h2 = getHeight(x + 1, y);
@@ -206,7 +206,7 @@ Mesh createTerrainMesh(bool isWater)
             float h4 = getHeight(x, y + 1);
             glm::vec3 normal{h1 - h2, 2, h3 - h4};
             glm::vec3 n = glm::normalize(normal);
-            terrain.normals.emplace_back(n.x, n.y, n.z);
+            mesh.normals.emplace_back(n.x, n.y, n.z);
 
             Colour colour;
 
@@ -233,18 +233,20 @@ Mesh createTerrainMesh(bool isWater)
                     colour.b = 127;
                 }
                 else {
-                    colour = Colour{100, 100, 100};
+                    colour.r = 255 / 4;
+                    colour.g = 220 / 4;
+                    colour.b = 127 / 4;
                 }
             }
-            terrain.colours.emplace_back(colour);
+            mesh.colours.emplace_back(colour);
 
             if (isWater) {
-                // float u = fx / VERTS - 1;
-                // float v = fy / VERTS - 1;
+                float u = fx / VERTS - 1;
+                float v = fy / VERTS - 1;
 
-                float u = y % (int)VERTS;
-                float v = x % (int)VERTS;
-                terrain.textureCoords.emplace_back(u, v);
+                // float u = y % (int)VERTS;
+                // float v = x % (int)VERTS;
+                mesh.textureCoords.emplace_back(u, v);
             }
 
             // float u = fx / VERTS - 1; // y % (int)VERTS;
@@ -263,14 +265,28 @@ Mesh createTerrainMesh(bool isWater)
             int bottomLeft = ((y + 1) * VERTS) + x;
             int bottomRight = bottomLeft + 1;
 
-            terrain.indices.push_back(bottomLeft);
-            terrain.indices.push_back(topRight);
-            terrain.indices.push_back(topLeft);
+            mesh.indices.push_back(bottomLeft);
+            mesh.indices.push_back(topRight);
+            mesh.indices.push_back(topLeft);
 
-            terrain.indices.push_back(topRight);
-            terrain.indices.push_back(bottomLeft);
-            terrain.indices.push_back(bottomRight);
+            mesh.indices.push_back(topRight);
+            mesh.indices.push_back(bottomLeft);
+            mesh.indices.push_back(bottomRight);
         }
     }
-    return terrain;
+
+    vao.bind();
+    vao.addAttribute(mesh.positions);
+    vao.addAttribute(mesh.colours);
+    vao.addAttribute(mesh.normals);
+    if (false) {
+        vao.addAttribute(mesh.textureCoords);
+    }
+    vao.addElements(mesh.indices);
+}
+
+void Terrain::render(int LOD)
+{
+    (void)LOD;
+    vao.getDrawable().bindDrawElements();
 }

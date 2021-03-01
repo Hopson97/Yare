@@ -2,7 +2,6 @@
 
 #include "../ClientSettings.h"
 #include "../Renderer/GLDebug.h"
-#include "../Renderer/Mesh.h"
 #include <SFML/Window/Keyboard.hpp>
 #include <imgui/imgui.h>
 #include <iostream>
@@ -67,27 +66,15 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     // m_waterShader.loadUniform("normalTexture", 1);
     // m_waterShader.loadUniform("displaceTexture", 2);
 
+    m_terrain.createTerrainMesh(false);
+    m_water.createTerrainMesh(true);
+
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
     m_cubeVao.addAttribute(cube.positions);
     m_cubeVao.addAttribute(cube.colours);
     m_cubeVao.addAttribute(cube.normals);
     m_cubeVao.addElements(cube.indices);
-
-    auto terrain = createTerrainMesh(false);
-    m_terrainVao.bind();
-    m_terrainVao.addAttribute(terrain.positions);
-    m_terrainVao.addAttribute(terrain.colours);
-    m_terrainVao.addAttribute(terrain.normals);
-    m_terrainVao.addElements(terrain.indices);
-
-    auto water = createTerrainMesh(true);
-    m_waterVao.bind();
-    m_waterVao.addAttribute(water.positions);
-    m_waterVao.addAttribute(water.colours);
-    m_waterVao.addAttribute(water.normals);
-  //  m_waterVao.addAttribute(water.textureCoords);
-    m_waterVao.addElements(water.indices);
 
     std::mt19937 rng(std::time(nullptr));
     std::uniform_real_distribution<float> dist(0, 100);
@@ -185,10 +172,10 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
 
     glActiveTexture(GL_TEXTURE0);
     m_reflection.bind();
-   // m_waterTexture.bind();
+    // m_waterTexture.bind();
 
     glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
-    m_waterVao.getDrawable().bindDrawElements();
+    m_water.render(1);
     /*
 
         // Render water
@@ -264,7 +251,7 @@ void InGameScreen::renderScene(const glm::vec4& clippingPlane)
     {
         auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
         m_shader.loadUniform("modelMatrix", modelmatrix);
-        m_terrainVao.getDrawable().bindDrawElements();
+        m_terrain.render(1);
     }
 }
 
