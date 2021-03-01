@@ -114,7 +114,7 @@ struct NoiseOptions {
     float amplitude;
 
     int octaves;
-    int offset;
+    float offset;
 };
 
 float getNoiseAt(const glm::vec2& position, int seed, NoiseOptions& options)
@@ -161,8 +161,8 @@ Mesh createTerrainMesh(bool isWater)
         // -7112
         std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
-    constexpr float SIZE = 256;
-    constexpr float VERTS = 256;
+    constexpr float SIZE = 512;
+    constexpr float VERTS = 512;
     constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
 
     std::vector<float> heights(TOTAL_VERTS);

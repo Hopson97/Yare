@@ -19,10 +19,23 @@ enum PolygonMode {
 struct Drawable final {
     const GLuint vertexArray = 0;
     const GLsizei indicesCount = 0;
+
     Drawable(GLuint vao, GLsizei indices);
-    void draw(DrawMode mode = DrawMode::Triangles) const;
-    void drawArrays(int count = 6, DrawMode mode = DrawMode::Triangles) const;
+
     void bind() const;
+
+    void drawArrays(int count = 6, DrawMode mode = DrawMode::Triangles) const;
+
+    void draw(int count, const void* indices = nullptr,
+              DrawMode mode = DrawMode::Triangles) const;
+
+    void bindDrawElements(int count, const void* indices = nullptr,
+                          DrawMode mode = DrawMode::Triangles) const;
+
+    void draw(const void* indices = nullptr, DrawMode mode = DrawMode::Triangles) const;
+
+    void bindDrawElements(const void* indices = nullptr,
+                          DrawMode mode = DrawMode::Triangles) const;
 };
 
 class VertexArray final {
