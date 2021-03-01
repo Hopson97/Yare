@@ -208,7 +208,7 @@ Mesh createTerrainMesh(bool isWater)
             glm::vec3 n = glm::normalize(normal);
             terrain.normals.emplace_back(n.x, n.y, n.z);
 
-            Mesh::Colour colour;
+            Colour colour;
 
             if (isWater) {
                 colour.r = 69;
@@ -219,10 +219,10 @@ Mesh createTerrainMesh(bool isWater)
             else {
                 int height = static_cast<int>(vy);
                 if (height > 10) {
-                    colour = Mesh::Colour{255, 255, 255};
+                    colour = {255, 255, 255};
                 }
                 else if (height > 6) {
-                    colour = Mesh::Colour{100, 100, 100};
+                    colour = {100, 100, 100};
                 }
                 else if (height > 0) {
                     colour.g = 255;
@@ -233,7 +233,7 @@ Mesh createTerrainMesh(bool isWater)
                     colour.b = 127;
                 }
                 else {
-                    colour = Mesh::Colour{100, 100, 100};
+                    colour = Colour{100, 100, 100};
                 }
             }
             terrain.colours.emplace_back(colour);
@@ -242,8 +242,8 @@ Mesh createTerrainMesh(bool isWater)
                 float u = fx / VERTS - 1;
                 float v = fy / VERTS - 1;
 
-                //float u = y % (int)VERTS;
-                //float v = x % (int)VERTS;
+                // float u = y % (int)VERTS;
+                // float v = x % (int)VERTS;
                 terrain.textureCoords.emplace_back(u, v);
             }
 

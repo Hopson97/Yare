@@ -35,7 +35,7 @@ struct Player {
 
 InGameScreen::InGameScreen(ScreenManager& screens)
     : Screen(screens)
-    , m_reflection(1600/4, 900/4)
+    , m_reflection(1600 / 4, 900 / 4)
 // , m_camera(1280.0f / 720.0f, 80)
 {
     m_reflection.bind();
@@ -58,7 +58,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_waterShader.addShader("Water", ShaderType::Fragment);
     m_waterShader.linkShaders();
     m_waterShader.bind();
-   // m_waterShader.loadUniform("lightPosition", {10, 100, 10});
+    // m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
     // m_waterShader.loadUniform("colourTexture", 0);
     // m_waterShader.loadUniform("normalTexture", 1);
