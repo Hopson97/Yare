@@ -77,7 +77,7 @@ void VertexArray::addAttribute(const std::vector<glm::vec3>& data)
     m_vertexBuffers.push_back(vbo);
 }
 
-void VertexArray::addAttribute(const std::vector<Mesh::Colour>& data)
+void VertexArray::addAttribute(const std::vector<Colour>& data)
 {
     GLuint vbo;
     glGenBuffers(1, &vbo);
