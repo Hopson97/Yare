@@ -3,6 +3,7 @@
 #include "../../Maths.h"
 #include "../Input.h"
 #include "../Renderer/Framebuffer.h"
+#include "../Renderer/Mesh.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Texture.h"
 #include "../Renderer/VertexArray.h"
@@ -36,11 +37,12 @@ class InGameScreen final : public Screen {
     // Texture2d m_waterDisplaceTexture;
 
     VertexArray m_cubeVao;
-    VertexArray m_terrainVao;
-    VertexArray m_waterVao;
 
     Shader m_shader;
     Shader m_waterShader;
+
+    Terrain m_terrain;
+    Terrain m_water;
 
     std::vector<std::pair<glm::vec3, glm::vec3>> m_cubePositions;
 };

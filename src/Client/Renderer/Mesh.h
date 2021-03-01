@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Colour.h"
+#include "VertexArray.h"
 
 struct Mesh final {
     /*
@@ -25,6 +26,12 @@ struct Mesh final {
     int currentIndex = 0;
 };
 
+struct Terrain {
+    VertexArray vao;
+
+    void createTerrainMesh(bool createBumps);
+    void render(int LOD);
+};
+
 Mesh createCubeMesh(const glm::vec3& dimensions);
 Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness = 0.1);
-Mesh createTerrainMesh(bool createBumps);
