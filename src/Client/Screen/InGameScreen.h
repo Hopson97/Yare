@@ -2,6 +2,7 @@
 
 #include "../../Maths.h"
 #include "../Input.h"
+#include "../Renderer/Framebuffer.h"
 #include "../Renderer/Shader.h"
 #include "../Renderer/Texture.h"
 #include "../Renderer/VertexArray.h"
@@ -15,7 +16,7 @@ class InGameScreen final : public Screen {
 
     void onInput(const sf::Window& window, const Keyboard& keyboard) override;
     void onUpdate(float dt) override;
-    void onRender() override;
+    void onRender(Framebuffer&) override;
 
   private:
     bool m_isPaused = false;
@@ -26,7 +27,7 @@ class InGameScreen final : public Screen {
 
     sf::Clock m_timer;
 
-    // Texture2d m_grassTexture;
+    Framebuffer m_reflection;
     // Texture2d m_waterTexture;
     // Texture2d m_waterNormalTexture;
     // Texture2d m_waterDisplaceTexture;

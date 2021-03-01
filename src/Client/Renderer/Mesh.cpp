@@ -108,66 +108,57 @@ Mesh createWireCubeMesh(const glm::vec3& dimensions, float wireThickness)
     return cube;
 }
 
-float getNoiseAt(const glm::vec2& position, int seed)
+struct NoiseOptions {
+    float roughness;
+    float smoothness;
+    float amplitude;
+
+    int octaves;
+    int offset;
+};
+
+float getNoiseAt(const glm::vec2& position, int seed, NoiseOptions& options)
 {
-    const float ROUGH = 0.7;
-    const float SMOOTH = 250.0f;
-    const int OCTAVES = 5;
-
-    float vertexX = position.x;
-    float vertexZ = position.y;
-
     float value = 0;
     float acc = 0;
-    for (int i = 0; i < OCTAVES; i++) {
+    for (int i = 0; i < options.octaves; i++) {
         float frequency = glm::pow(2.0f, i);
-        float amplitude = glm::pow(ROUGH, i);
+        float amplitude = glm::pow(options.roughness, i);
 
-        float x = vertexX * frequency / SMOOTH;
-        float z = vertexZ * frequency / SMOOTH;
+        float x = position.x * frequency / options.smoothness;
+        float z = position.y * frequency / options.smoothness;
 
         float noiseValue = glm::simplex(glm::vec3{x, z, seed});
         noiseValue = (noiseValue + 1.0f) / 2.0f;
         value += noiseValue * amplitude;
         acc += amplitude;
     }
-    return value / acc * 50 - 30;
-}
-
-float getNoiseAt2(const glm::vec2& position, int seed)
-{
-    const float ROUGH = 1.2;
-    const float SMOOTH = 50.0f;
-    const int OCTAVES = 5;
-
-    float vertexX = position.x;
-    float vertexZ = position.y;
-
-    float value = 0;
-    float acc = 0;
-    for (int i = 0; i < OCTAVES; i++) {
-        float frequency = glm::pow(2.0f, i);
-        float amplitude = glm::pow(ROUGH, i);
-
-        float x = vertexX * frequency / SMOOTH;
-        float z = vertexZ * frequency / SMOOTH;
-
-        float noiseValue = glm::simplex(glm::vec3{x, z, seed});
-        noiseValue = (noiseValue + 1.0f) / 2.0f;
-        value += noiseValue * amplitude;
-        acc += amplitude;
-    }
-    return value / acc * 5 - 4;
+    return value / acc * options.amplitude + options.offset;
 }
 
 Mesh createTerrainMesh(bool isWater)
 {
+    NoiseOptions terrainNoise;
+    terrainNoise.roughness = 0.7;
+    terrainNoise.smoothness = 250.0f;
+    terrainNoise.octaves = 5;
+    terrainNoise.amplitude = 50.0f;
+    terrainNoise.offset = -27;
+
+    NoiseOptions bumpNoise;
+    bumpNoise.roughness = 1.2;
+    bumpNoise.smoothness = 50.0f;
+    bumpNoise.octaves = 5;
+    bumpNoise.amplitude = 5.0f;
+    bumpNoise.offset = -4;
+
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> dist(-20000, 20000);
     int seed = dist(rng);
     if (!isWater) {
         // 16145
+        // -7112
         std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
     constexpr float SIZE = 256;
@@ -179,8 +170,9 @@ Mesh createTerrainMesh(bool isWater)
     if (!isWater) {
         for (int y = 0; y < VERTS; y++) {
             for (int x = 0; x < VERTS; x++) {
-                heights[y * VERTS + x] =
-                    getNoiseAt({x, y}, seed) + getNoiseAt2({x, y}, seed);
+                float height = getNoiseAt({x, y}, seed, terrainNoise);
+                float bumps = getNoiseAt({x, y}, seed, bumpNoise);
+                heights[y * VERTS + x] = height + bumps;
             }
         }
     }
@@ -222,7 +214,7 @@ Mesh createTerrainMesh(bool isWater)
                 colour.r = 69;
                 colour.g = 255;
                 colour.b = 241;
-                colour.a = 200;
+                colour.a = 250;
             }
             else {
                 int height = static_cast<int>(vy);
@@ -245,6 +237,15 @@ Mesh createTerrainMesh(bool isWater)
                 }
             }
             terrain.colours.emplace_back(colour);
+
+            if (isWater) {
+                float u = fx / VERTS - 1;
+                float v = fy / VERTS - 1;
+
+                //float u = y % (int)VERTS;
+                //float v = x % (int)VERTS;
+                terrain.textureCoords.emplace_back(u, v);
+            }
 
             // float u = fx / VERTS - 1; // y % (int)VERTS;
             // float v = fy / VERTS - 1; // x % (int)VERTS;

@@ -11,7 +11,7 @@ MainMenuScreen::MainMenuScreen(ScreenManager& stack)
 {
 }
 
-void MainMenuScreen::onRender()
+void MainMenuScreen::onRender(Framebuffer&)
 {
     switch (m_activeMenu) {
         case Menu::MainMenuScreen:

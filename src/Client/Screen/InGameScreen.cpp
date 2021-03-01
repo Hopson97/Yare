@@ -35,8 +35,12 @@ struct Player {
 
 InGameScreen::InGameScreen(ScreenManager& screens)
     : Screen(screens)
+    , m_reflection(1600/4, 900/4)
 // , m_camera(1280.0f / 720.0f, 80)
 {
+    m_reflection.bind();
+    m_reflection.attachTexture();
+    m_reflection.finalise();
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -54,7 +58,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_waterShader.addShader("Water", ShaderType::Fragment);
     m_waterShader.linkShaders();
     m_waterShader.bind();
-    m_waterShader.loadUniform("lightPosition", {10, 100, 10});
+   // m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
     // m_waterShader.loadUniform("colourTexture", 0);
     // m_waterShader.loadUniform("normalTexture", 1);
@@ -79,6 +83,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_waterVao.addAttribute(water.positions);
     m_waterVao.addAttribute(water.colours);
     m_waterVao.addAttribute(water.normals);
+    m_waterVao.addAttribute(water.textureCoords);
     m_waterVao.addElements(water.indices);
 
     std::mt19937 rng(std::time(nullptr));
@@ -149,52 +154,64 @@ void InGameScreen::onUpdate(float dt)
     m_camera.rotation = m_player.rotation;
 }
 
-void InGameScreen::onRender()
+void InGameScreen::onRender(Framebuffer& framebuffer)
 {
     m_shader.bind();
-
-    //   glActiveTexture(GL_TEXTURE0);
-    // m_grassTexture.bind();
-
-    // Load up projection matrix stuff
     auto projectionView = m_camera.getProjectionView();
-    m_shader.loadUniform("projectionViewMatrix", projectionView);
 
-    m_cubeVao.getDrawable().bind();
+    // Render cubes
+    {
+        // Load up projection matrix stuff
+        m_shader.loadUniform("projectionViewMatrix", projectionView);
 
-    for (auto& cube : m_cubePositions) {
-        auto modelmatrix = createModelMatrix(cube.first, cube.second);
-        cube.second.x++;
-        cube.second.y++;
-        cube.second.z++;
-        m_shader.loadUniform("modelMatrix", modelmatrix);
+        m_cubeVao.getDrawable().bind();
 
-        m_cubeVao.getDrawable().draw();
+        for (auto& cube : m_cubePositions) {
+            auto modelmatrix = createModelMatrix(cube.first, cube.second);
+            cube.second.x++;
+            cube.second.y++;
+            cube.second.z++;
+            m_shader.loadUniform("modelMatrix", modelmatrix);
+
+            m_cubeVao.getDrawable().draw();
+        }
     }
-    // Render terrain and water
+
     auto modelmatrix = createModelMatrix({-50, 0, -50}, {0, 0, 0});
-    m_shader.loadUniform("modelMatrix", modelmatrix);
-    m_terrainVao.getDrawable().bind();
-    m_terrainVao.getDrawable().draw();
+    // Render terrain
+    {
+        m_shader.loadUniform("modelMatrix", modelmatrix);
+        m_terrainVao.getDrawable().bind();
+        m_terrainVao.getDrawable().draw();
+    }
 
-    m_waterShader.bind();
-    m_waterShader.loadUniform("modelMatrix", modelmatrix);
-    m_waterShader.loadUniform("projectionViewMatrix", projectionView);
-    // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+    // Render water
+    {
+        m_camera.position.y = -m_camera.position.y;
+        m_camera.rotation.x = -m_camera.rotation.x;
+        auto reflectProjectionView = m_camera.getProjectionView();
+        m_reflection.bind();
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        m_shader.loadUniform("projectionViewMatrix", reflectProjectionView);
 
-    // glActiveTexture(GL_TEXTURE0);
-    // m_waterTexture.bind();
+        m_terrainVao.getDrawable().bind();
+        m_terrainVao.getDrawable().draw();
 
-    // glActiveTexture(GL_TEXTURE1);
-    // m_waterNormalTexture.bind();
+        glActiveTexture(GL_TEXTURE0);
+        framebuffer.bind();
 
-    // glActiveTexture(GL_TEXTURE2);
-    // m_waterDisplaceTexture.bind();
+        m_camera.position.y = -m_camera.position.y;
+        m_camera.rotation.x = -m_camera.rotation.x;
+        m_reflection.bindTexture(0);
+        m_waterShader.bind();
+        m_waterShader.loadUniform("modelMatrix", modelmatrix);
+        m_waterShader.loadUniform("projectionViewMatrix", projectionView);
 
-    glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
+        glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
 
-    m_waterVao.getDrawable().bind();
-    m_waterVao.getDrawable().draw();
+        m_waterVao.getDrawable().bind();
+        m_waterVao.getDrawable().draw();
+    }
 
     glCullFace(GL_BACK);
     if (m_isPaused) {

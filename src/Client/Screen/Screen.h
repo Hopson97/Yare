@@ -7,6 +7,7 @@
 
 class Screen;
 class Keyboard;
+class Framebuffer;
 
 class ScreenManager final {
     struct Action {
@@ -38,7 +39,7 @@ class Screen {
 
     virtual void onInput(const sf::Window&, const Keyboard&)  {}
     virtual void onUpdate([[maybe_unused]] float dt) {}
-    virtual void onRender() = 0;
+    virtual void onRender(Framebuffer&) = 0;
 
   protected:
     ScreenManager* m_pScreens;
