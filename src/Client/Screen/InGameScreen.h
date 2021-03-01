@@ -19,6 +19,8 @@ class InGameScreen final : public Screen {
     void onRender(Framebuffer&) override;
 
   private:
+    void renderScene(const glm::vec4& clippingPlane);
+
     bool m_isPaused = false;
     bool m_isSettingsOpened = false;
     void showPauseMenu();
@@ -28,6 +30,7 @@ class InGameScreen final : public Screen {
     sf::Clock m_timer;
 
     Framebuffer m_reflection;
+    Framebuffer m_refraction;
     Texture2d m_waterTexture;
     // Texture2d m_waterNormalTexture;
     // Texture2d m_waterDisplaceTexture;

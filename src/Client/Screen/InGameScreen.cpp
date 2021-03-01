@@ -28,21 +28,24 @@ glm::mat4 Camera::getProjectionView() const
 }
 
 struct Player {
-    glm::vec3 position{0.0f, 10.0f, 0.0f};
+    glm::vec3 position{100.0f, 0.0f, 100.0f};
     glm::vec3 rotation{0.0f, 180.0f, 0.0f};
     glm::vec3 velocity{0.0f};
 } m_player;
 
 InGameScreen::InGameScreen(ScreenManager& screens)
     : Screen(screens)
-    , m_reflection(1600 / 4, 900 / 4)
+    , m_reflection(1600 / 2, 900 / 2)
+    , m_refraction(1600 / 2, 900 / 2)
 // , m_camera(1280.0f / 720.0f, 80)
 {
     m_reflection.bind();
     m_reflection.attachTexture();
     m_reflection.finalise();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_refraction.bind();
+    m_refraction.attachTexture();
+    m_refraction.finalise();
 
     m_camera.init(1600.0f / 900.0f, 75);
 
@@ -51,14 +54,14 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_shader.addShader("Terrain", ShaderType::Fragment);
     m_shader.linkShaders();
     m_shader.bind();
-    m_shader.loadUniform("lightPosition", {10, 100, 10});
+    m_shader.loadUniform("lightPosition", {200, 100, 200});
 
     // Create a shader
-    m_waterShader.addShader("Terrain", ShaderType::Vertex);
+    m_waterShader.addShader("Water", ShaderType::Vertex);
     m_waterShader.addShader("Water", ShaderType::Fragment);
     m_waterShader.linkShaders();
     m_waterShader.bind();
-    // m_waterShader.loadUniform("lightPosition", {10, 100, 10});
+    m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
     m_waterShader.loadUniform("reflectionSampler", 0);
     // m_waterShader.loadUniform("normalTexture", 1);
@@ -83,7 +86,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_waterVao.addAttribute(water.positions);
     m_waterVao.addAttribute(water.colours);
     m_waterVao.addAttribute(water.normals);
-    m_waterVao.addAttribute(water.textureCoords);
+  //  m_waterVao.addAttribute(water.textureCoords);
     m_waterVao.addElements(water.indices);
 
     std::mt19937 rng(std::time(nullptr));
@@ -114,7 +117,7 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     if (m_isPaused) {
         return;
     }
-    auto SPEED = 5.50f;
+    auto SPEED = 20.2f;
     static sf::Vector2i m_lastMousePosition;
     sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
     m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
@@ -157,73 +160,75 @@ void InGameScreen::onUpdate(float dt)
 void InGameScreen::onRender(Framebuffer& framebuffer)
 {
     m_shader.bind();
+
+    // Render refraction texture
+    m_refraction.bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderScene({0, -1, 0, 0});
+
+    // Render reflection texture
+    m_refraction.bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderScene({0, 1, 0, 0});
+
+    // Render scene as normal
+    framebuffer.bind();
+    renderScene({0, -1, 0, 1000000});
+
+    // Render the water
+    m_waterShader.bind();
+    auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
     auto projectionView = m_camera.getProjectionView();
+    m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+    m_waterShader.loadUniform("projectionViewMatrix", projectionView);
+    m_waterShader.loadUniform("modelMatrix", modelmatrix);
 
-    // Render cubes
-    {
-        // Load up projection matrix stuff
-        m_shader.loadUniform("projectionViewMatrix", projectionView);
+    glActiveTexture(GL_TEXTURE0);
+    m_reflection.bind();
+   // m_waterTexture.bind();
 
-        m_cubeVao.getDrawable().bind();
+    glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
+    m_waterVao.getDrawable().bindDrawElements();
+    /*
 
-        for (auto& cube : m_cubePositions) {
-            auto modelmatrix = createModelMatrix(cube.first, cube.second);
-            cube.second.x++;
-            cube.second.y++;
-            cube.second.z++;
-            m_shader.loadUniform("modelMatrix", modelmatrix);
+        // Render water
+        {
+            // Render the reflection
+            //    m_camera.position.y = -m_camera.position.y;
+            // m_camera.rotation.x = -m_camera.rotation.x;
+            auto reflectProjectionView = m_camera.getProjectionView();
+            m_reflection.bind();
+            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+            m_shader.loadUniform("projectionViewMatrix", reflectProjectionView);
 
-            m_cubeVao.getDrawable().draw();
+            m_cubeVao.getDrawable().bind();
+
+            for (auto& cube : m_cubePositions) {
+                auto modelmatrix = createModelMatrix(cube.first, cube.second);
+                m_shader.loadUniform("modelMatrix", modelmatrix);
+
+                m_cubeVao.getDrawable().draw();
+            }
+
+            m_terrainVao.getDrawable().bindDrawElements();
+
+            // Render the water using the reflection texture
+            glActiveTexture(GL_TEXTURE0);
+            m_reflection.bindTexture(0);
+            framebuffer.bind();
+
+            // m_camera.position.y = -m_camera.position.y;
+            // m_camera.rotation.x = -m_camera.rotation.x;
+            m_waterShader.bind();
+            m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+            m_waterShader.loadUniform("modelMatrix", modelmatrix);
+            m_waterShader.loadUniform("projectionViewMatrix", projectionView);
+
+            glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
+
+            m_waterVao.getDrawable().bindDrawElements();
         }
-    }
-
-    auto modelmatrix = createModelMatrix({-50, 0, -50}, {0, 0, 0});
-    // Render terrain
-    {
-        m_shader.loadUniform("modelMatrix", modelmatrix);
-        m_terrainVao.getDrawable().bindDrawElements();
-    }
-
-    // Render water
-    {
-        // Render the reflection
-    //    m_camera.position.y = -m_camera.position.y;
-       // m_camera.rotation.x = -m_camera.rotation.x;
-        auto reflectProjectionView = m_camera.getProjectionView();
-        m_reflection.bind();
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        m_shader.loadUniform("projectionViewMatrix", reflectProjectionView);
-
-        m_cubeVao.getDrawable().bind();
-
-        for (auto& cube : m_cubePositions) {
-            auto modelmatrix = createModelMatrix(cube.first, cube.second);
-            cube.second.x++;
-            cube.second.y++;
-            cube.second.z++;
-            m_shader.loadUniform("modelMatrix", modelmatrix);
-
-            m_cubeVao.getDrawable().draw();
-        }
-
-        m_terrainVao.getDrawable().bindDrawElements();
-
-        // Render the water using the reflection texture
-        glActiveTexture(GL_TEXTURE0);
-        m_reflection.bindTexture(0);
-        framebuffer.bind();
-
-        //m_camera.position.y = -m_camera.position.y;
-        //m_camera.rotation.x = -m_camera.rotation.x;
-        m_waterShader.bind();
-        m_waterShader.loadUniform("modelMatrix", modelmatrix);
-        m_waterShader.loadUniform("projectionViewMatrix", projectionView);
-
-        glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
-
-        m_waterVao.getDrawable().bindDrawElements();
-    }
-
+    */
     glCullFace(GL_BACK);
     if (m_isPaused) {
         if (m_isSettingsOpened) {
@@ -232,6 +237,34 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
         else {
             showPauseMenu();
         }
+    }
+}
+
+void InGameScreen::renderScene(const glm::vec4& clippingPlane)
+{
+    auto projectionView = m_camera.getProjectionView();
+    m_shader.loadUniform("projectionViewMatrix", projectionView);
+    m_shader.loadUniform("clippingPlane", clippingPlane);
+
+    // Render cubes
+    {
+        const Drawable& cubeDrawable = m_cubeVao.getDrawable();
+        cubeDrawable.bind();
+        for (auto& cube : m_cubePositions) {
+            auto modelmatrix = createModelMatrix(cube.first, cube.second);
+            cube.second.x++;
+            cube.second.y++;
+            cube.second.z++;
+            m_shader.loadUniform("modelMatrix", modelmatrix);
+
+            cubeDrawable.draw();
+        }
+    }
+    // Render terrain
+    {
+        auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
+        m_shader.loadUniform("modelMatrix", modelmatrix);
+        m_terrainVao.getDrawable().bindDrawElements();
     }
 }
 
