@@ -122,14 +122,9 @@ Drawable::Drawable(GLuint vao, GLsizei indices)
 {
 }
 
-void Drawable::draw(DrawMode mode) const
+void setPolygonMode(PolygonMode mode)
 {
-    glDrawElements(mode, indicesCount, GL_UNSIGNED_INT, nullptr);
-}
-
-void Drawable::drawArrays(int count, DrawMode mode) const
-{
-    glDrawArrays(mode, 0, count);
+    glPolygonMode(GL_FRONT_AND_BACK, mode);
 }
 
 void Drawable::bind() const
@@ -138,7 +133,28 @@ void Drawable::bind() const
     glBindVertexArray(vertexArray);
 }
 
-void setPolygonMode(PolygonMode mode)
+void Drawable::drawArrays(int count, DrawMode mode) const
 {
-    glPolygonMode(GL_FRONT_AND_BACK, mode);
+    glDrawArrays(mode, 0, count);
+}
+
+void Drawable::draw(int count, const void* indices, DrawMode mode) const
+{
+    glDrawElements(mode, count, GL_UNSIGNED_INT, indices);
+}
+
+void Drawable::bindDrawElements(int count, const void* indices, DrawMode mode) const
+{
+    bind();
+    draw(count, indices, mode);
+}
+
+void Drawable::draw(const void* indices, DrawMode mode) const
+{
+    draw(indicesCount, indices, mode);
+}
+
+void Drawable::bindDrawElements(const void* indices, DrawMode mode) const
+{
+    bindDrawElements(indicesCount, indices, mode);
 }

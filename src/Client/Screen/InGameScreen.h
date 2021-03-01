@@ -28,7 +28,7 @@ class InGameScreen final : public Screen {
     sf::Clock m_timer;
 
     Framebuffer m_reflection;
-    // Texture2d m_waterTexture;
+    Texture2d m_waterTexture;
     // Texture2d m_waterNormalTexture;
     // Texture2d m_waterDisplaceTexture;
 

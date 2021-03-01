@@ -27,7 +27,7 @@ void main()
     float   diff            = max(dot(normal, lightDirection), 0.25);
     
     vec3    diffuse         = passColour.rgb * diff * reflectTexture;
-    outColour = vec4(reflectTexture, passColour.a);//vec4(diffuse, passColour.a);
+    outColour = vec4(reflectTexture, 0.9);//vec4(diffuse, passColour.a);
 
     float brightness = dot(outColour.rgb, vec3(0.2126, 0.7152, 0.0722));
     if(brightness > 0.9) 
