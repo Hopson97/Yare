@@ -7,12 +7,21 @@ layout (location = 3) in vec2 inTextureCoord;
 
 uniform mat4 modelMatrix;
 uniform mat4 projectionViewMatrix;
-uniform float time;
+uniform vec3 lightPosition;
 
-out vec3 passFragPosition;
-flat out vec3 passNormal;
-out vec4 passColour;
+flat out vec4 passColour;
 out vec2 passTextureCoord;
+
+uniform vec4 clippingPlane;
+
+void calcuateVertexColour(vec3 fragmentPos)
+{
+    vec3  normal          = normalize(mat3(modelMatrix) * inNormal);
+    vec3  lightDirection  = normalize(lightPosition - fragmentPos);
+    float diff            = max(dot(normal, lightDirection), 0.25);
+    vec3  diffuse         = inColour.rgb * diff;
+    passColour = vec4(diffuse, inColour.a);
+}
 
 vec4 getWorldPos()
 {
@@ -22,16 +31,12 @@ vec4 getWorldPos()
     return worldPos;
 }
 
-void main() {
-    vec4 worldPos = getWorldPos();
-
-
-
+void main() 
+{
+    vec4 worldPos = getWorldPos(); 
+    //gl_ClipDistance[0] = dot(worldPos, clippingPlane);
     gl_Position = projectionViewMatrix * worldPos;
 
-    passFragPosition = vec3(modelMatrix * vec4(inVertexCoord, 1.0));
-    passNormal = mat3(modelMatrix) * inNormal;
-
-    passColour = inColour;
+    calcuateVertexColour(vec3(modelMatrix * vec4(inVertexCoord, 1.0)));
     passTextureCoord = inTextureCoord;
 }

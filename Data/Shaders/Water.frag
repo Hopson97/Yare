@@ -3,35 +3,23 @@
 layout (location = 0) out vec4 outColour;
 layout (location = 1) out vec4 outBrightColour;
 
-uniform vec3 lightPosition;
-//uniform float time;
-
-in vec3 passFragPosition;
-flat in vec3 passNormal;
-in vec4 passColour;
+flat in vec4 passColour;
 in vec2 passTextureCoord;
 
 uniform sampler2D reflectionSampler;
 
 void main() 
 {
-    //vec3 colourTex      = texture(colourTexture,    passTextureCoord).rgb;
-    //vec2 displaceTex    = texture(displaceTexture,  passTextureCoord).rg;
-    //vec3 normalTex      = texture(normalTexture,  passTextureCoord + displaceTex + time / 10.0).rgb;
-
-    vec3 normal = normalize(passNormal);
-
     vec3 reflectTexture = texture(reflectionSampler, passTextureCoord).rgb;
+    outColour = passColour;
 
-    vec3    lightDirection  = normalize(lightPosition - passFragPosition);
-    float   diff            = max(dot(normal, lightDirection), 0.25);
-    
-    vec3    diffuse         = passColour.rgb * diff * reflectTexture;
-    outColour = vec4(reflectTexture, 0.6);//vec4(diffuse, passColour.a);
+    outColour = mix(passColour, vec4(reflectTexture, 0.6), 0.5);
 
     float brightness = dot(outColour.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 0.9) 
+    if (brightness > 0.9)  {
         outBrightColour = vec4(outColour.rgb, 1.0);
-    else
+    }
+    else  {
         outBrightColour = vec4(0.0, 0.0, 0.0, 1.0); 
+    }
 }
