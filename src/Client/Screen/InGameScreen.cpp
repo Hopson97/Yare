@@ -114,7 +114,7 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
         m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
         m_player.rotation.y += static_cast<float>(change.x / 8.0f * 0.5);
         sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2},
-                            window);
+                               window);
         m_lastMousePosition = sf::Mouse::getPosition(window);
     }
 
@@ -173,56 +173,17 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
     m_waterShader.bind();
     auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
     auto projectionView = m_camera.getProjectionView();
-   // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
+    // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
     m_waterShader.loadUniform("modelMatrix", modelmatrix);
 
     glActiveTexture(GL_TEXTURE0);
-    //m_reflection.bind();
+    // m_reflection.bind();
     m_waterTexture.bind();
 
     glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
     m_water.render(lod);
-    /*
 
-        // Render water
-        {
-            // Render the reflection
-            //    m_camera.position.y = -m_camera.position.y;
-            // m_camera.rotation.x = -m_camera.rotation.x;
-            auto reflectProjectionView = m_camera.getProjectionView();
-            m_reflection.bind();
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-            m_shader.loadUniform("projectionViewMatrix", reflectProjectionView);
-
-            m_cubeVao.getDrawable().bind();
-
-            for (auto& cube : m_cubePositions) {
-                auto modelmatrix = createModelMatrix(cube.first, cube.second);
-                m_shader.loadUniform("modelMatrix", modelmatrix);
-
-                m_cubeVao.getDrawable().draw();
-            }
-
-            m_terrainVao.getDrawable().bindDrawElements();
-
-            // Render the water using the reflection texture
-            glActiveTexture(GL_TEXTURE0);
-            m_reflection.bindTexture(0);
-            framebuffer.bind();
-
-            // m_camera.position.y = -m_camera.position.y;
-            // m_camera.rotation.x = -m_camera.rotation.x;
-            m_waterShader.bind();
-            m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
-            m_waterShader.loadUniform("modelMatrix", modelmatrix);
-            m_waterShader.loadUniform("projectionViewMatrix", projectionView);
-
-            glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
-
-            m_waterVao.getDrawable().bindDrawElements();
-        }
-    */
     glCullFace(GL_BACK);
     if (m_isPaused) {
         if (m_isSettingsOpened) {
@@ -237,7 +198,6 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
         ImGui::SliderInt("LOD Level", &lod, 0, 6);
     }
     ImGui::End();
-
 }
 
 void InGameScreen::renderScene(const glm::vec4& clippingPlane)
