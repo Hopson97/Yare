@@ -26,16 +26,14 @@ struct Drawable final {
 
     void drawArrays(int count = 6, DrawMode mode = DrawMode::Triangles) const;
 
-    void draw(int count, GLuint start = 0,
-              DrawMode mode = DrawMode::Triangles) const;
+    void draw(int count, GLuint start = 0, DrawMode mode = DrawMode::Triangles) const;
 
     void bindDrawElements(int count, GLuint start = 0,
                           DrawMode mode = DrawMode::Triangles) const;
 
     void draw(GLuint start = 0, DrawMode mode = DrawMode::Triangles) const;
 
-    void bindDrawElements(GLuint start = 0,
-                          DrawMode mode = DrawMode::Triangles) const;
+    void bindDrawElements(GLuint start = 0, DrawMode mode = DrawMode::Triangles) const;
 };
 
 class VertexArray final {

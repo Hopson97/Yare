@@ -140,10 +140,10 @@ void Terrain::createTerrainMesh(bool isWater)
 {
     NoiseOptions terrainNoise;
     terrainNoise.roughness = 0.7;
-    terrainNoise.smoothness = 250.0f;
+    terrainNoise.smoothness = 350.0f;
     terrainNoise.octaves = 5;
-    terrainNoise.amplitude = 50.0f;
-    terrainNoise.offset = -27;
+    terrainNoise.amplitude = 80.0f;
+    terrainNoise.offset = -47;
 
     NoiseOptions bumpNoise;
     bumpNoise.roughness = 1.2;
@@ -269,13 +269,13 @@ void Terrain::createTerrainMesh(bool isWater)
                 int bottomLeft = ((y + level) * VERTS) + x;
                 int bottomRight = bottomLeft + level;
 
-                mesh.indices.push_back(bottomLeft);
-                mesh.indices.push_back(topRight);
                 mesh.indices.push_back(topLeft);
-
+                mesh.indices.push_back(bottomLeft);
                 mesh.indices.push_back(topRight);
                 mesh.indices.push_back(bottomLeft);
                 mesh.indices.push_back(bottomRight);
+                mesh.indices.push_back(topRight);
+
                 lod.count += 6;
             }
         }
@@ -288,7 +288,6 @@ void Terrain::createTerrainMesh(bool isWater)
     createLOD(32);
     createLOD(64);
     createLOD(128);
-
 
     vao.bind();
     vao.addAttribute(mesh.positions);
