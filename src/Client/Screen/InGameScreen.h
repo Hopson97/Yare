@@ -10,6 +10,8 @@
 #include "Screen.h"
 #include <SFML/System/Clock.hpp>
 
+#include "../Camera.h"
+
 class InGameScreen final : public Screen {
   public:
     InGameScreen(ScreenManager& stack);
@@ -41,8 +43,10 @@ class InGameScreen final : public Screen {
     Shader m_shader;
     Shader m_waterShader;
 
-    Terrain m_terrain;
-    Terrain m_water;
+    std::vector<Terrain> m_terrains;
+    std::vector<Terrain> m_waters;
 
     std::vector<std::pair<glm::vec3, glm::vec3>> m_cubePositions;
+
+    ViewFrustum m_frustum;
 };

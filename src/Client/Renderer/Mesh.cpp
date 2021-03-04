@@ -4,6 +4,7 @@
 #include <array>
 #include <ctime>
 #include <glm/gtc/noise.hpp>
+#include <iomanip>
 #include <iostream>
 #include <random>
 
@@ -117,7 +118,7 @@ struct NoiseOptions {
     float offset;
 };
 
-float getNoiseAt(const glm::vec2& position, int seed, NoiseOptions& options)
+float getNoiseAt(const glm::ivec2& position, int seed, NoiseOptions& options)
 {
     float value = 0;
     float acc = 0;
@@ -155,38 +156,41 @@ void Terrain::createTerrainMesh(bool isWater)
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> dist(-20000, 20000);
-    int seed = dist(rng);
+    int seed = 13913; // dist(rng);
     if (!isWater) {
         // 16145
         // 18090
         // -7112
+        // 13913
         std::cout << "Seed: " << seed << " " << RAND_MAX << std::endl;
     }
-    constexpr float SIZE = 1024;
-    constexpr float VERTS = 1024;
-    constexpr unsigned TOTAL_VERTS = VERTS * VERTS;
+    constexpr float SIZE = TERRAIN_SIZE;
+    constexpr float VERTS = TERRAIN_SIZE;
+    constexpr int HEIGHT_MAPS_WIDTH = VERTS + 2;
+    constexpr unsigned HEIGHT_MAP_SIZE = HEIGHT_MAPS_WIDTH * HEIGHT_MAPS_WIDTH;
 
-    std::vector<float> heights(TOTAL_VERTS);
+    std::vector<float> heights(HEIGHT_MAP_SIZE);
 
     if (!isWater) {
-        for (int y = 0; y < VERTS; y++) {
-            for (int x = 0; x < VERTS; x++) {
-                float height = getNoiseAt({x, y}, seed, terrainNoise);
-                float bumps = getNoiseAt({x, y}, seed, bumpNoise);
-                heights[y * VERTS + x] = height + bumps;
+        for (int y = 0; y < HEIGHT_MAPS_WIDTH; y++) {
+            for (int x = 0; x < HEIGHT_MAPS_WIDTH; x++) {
+                int tx = x + (HEIGHT_MAPS_WIDTH - 1) * position.x + position.x * -2;
+                int ty = y + (HEIGHT_MAPS_WIDTH - 1) * position.y + position.y * -2;
+                float height = getNoiseAt({tx, ty}, seed, terrainNoise);
+                float bumps = getNoiseAt({tx, ty}, seed, bumpNoise);
+                heights[y * HEIGHT_MAPS_WIDTH + x] = height + bumps;
             }
         }
     }
     else {
         std::fill(heights.begin(), heights.end(), 0);
     }
-
     auto getHeight = [&](int x, int y) {
-        if (x < 0 || x >= VERTS || y < 0 || y >= VERTS) {
+        if (x < 0 || x >= HEIGHT_MAPS_WIDTH || y < 0 || y >= HEIGHT_MAPS_WIDTH) {
             return 0.0f;
         }
         else {
-            return heights[y * (int)VERTS + x];
+            return heights[y * HEIGHT_MAPS_WIDTH + x];
         }
     };
 
@@ -198,13 +202,17 @@ void Terrain::createTerrainMesh(bool isWater)
 
             float vx = fx / (VERTS - 1) * SIZE;
             float vz = fy / (VERTS - 1) * SIZE;
-            float vy = getHeight(x, y);
+
+            int hx = x + 1;
+            int hy = y + 1;
+            float vy = getHeight(hx, hy);
+
             mesh.positions.emplace_back(vx, vy, vz);
 
-            float h1 = getHeight(x - 1, y);
-            float h2 = getHeight(x + 1, y);
-            float h3 = getHeight(x, y - 1);
-            float h4 = getHeight(x, y + 1);
+            float h1 = getHeight(hx - 1, hy);
+            float h2 = getHeight(hx + 1, hy);
+            float h3 = getHeight(hx, hy - 1);
+            float h4 = getHeight(hx, hy + 1);
             glm::vec3 normal{h1 - h2, 2, h3 - h4};
             glm::vec3 n = glm::normalize(normal);
             mesh.normals.emplace_back(n.x, n.y, n.z);
@@ -287,7 +295,7 @@ void Terrain::createTerrainMesh(bool isWater)
     createLOD(16);
     createLOD(32);
     createLOD(64);
-    createLOD(128);
+    createLOD(TERRAIN_SIZE);
 
     vao.bind();
     vao.addAttribute(mesh.positions);

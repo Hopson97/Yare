@@ -18,6 +18,7 @@ add_library(yare-lib
 
     src/Client/ClientSettings.cpp
     src/Client/Input.cpp
+    src/Client/Camera.cpp
 
 
 

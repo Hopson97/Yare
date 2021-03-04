@@ -69,8 +69,18 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     // m_waterShader.loadUniform("normalTexture", 1);
     // m_waterShader.loadUniform("displaceTexture", 2);
 
-    m_terrain.createTerrainMesh(false);
-    m_water.createTerrainMesh(true);
+    for (int z = 0; z < 3; z++) {
+        for (int x = 0; x < 3; x++) {
+            Terrain& t = m_terrains.emplace_back();
+            t.position = {x, z};
+            t.createTerrainMesh(false);
+
+            // TODO Only generate if the terrain has any below 0
+            Terrain& w = m_terrains.emplace_back();
+            w.position = {x, z};
+            w.createTerrainMesh(true);
+        }
+    }
 
     auto cube = createCubeMesh({1, 1, 1});
     m_cubeVao.bind();
@@ -140,6 +150,7 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
 
 void InGameScreen::onUpdate(float dt)
 {
+    m_frustum.update(m_camera.getProjectionView());
     if (m_isPaused) {
         return;
     }
@@ -171,18 +182,24 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
 
     // Render the water
     m_waterShader.bind();
-    auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
     auto projectionView = m_camera.getProjectionView();
     // m_waterShader.loadUniform("time", m_timer.getElapsedTime().asSeconds());
     m_waterShader.loadUniform("projectionViewMatrix", projectionView);
-    m_waterShader.loadUniform("modelMatrix", modelmatrix);
 
     glActiveTexture(GL_TEXTURE0);
     // m_reflection.bind();
     m_waterTexture.bind();
 
     glCullFace(m_camera.position.y < 0 ? GL_FRONT : GL_BACK);
-    m_water.render(lod);
+    for (auto& water : m_waters) {
+        //  if (m_frustum.terrainInView(terrain.position)) {
+        auto modelmatrix = createModelMatrix(
+            {water.position.x * TERRAIN_SIZE, 0, water.position.y * TERRAIN_SIZE},
+            {0, 0, 0});
+        m_waterShader.loadUniform("modelMatrix", modelmatrix);
+        water.render(lod);
+        //  }
+    }
 
     glCullFace(GL_BACK);
     if (m_isPaused) {
@@ -206,6 +223,8 @@ void InGameScreen::renderScene(const glm::vec4& clippingPlane)
     m_shader.loadUniform("projectionViewMatrix", projectionView);
     m_shader.loadUniform("clippingPlane", clippingPlane);
 
+    int terrainSectionsRendered = 0;
+
     // Render cubes
     {
         const Drawable& cubeDrawable = m_cubeVao.getDrawable();
@@ -222,10 +241,23 @@ void InGameScreen::renderScene(const glm::vec4& clippingPlane)
     }
     // Render terrain
     {
-        auto modelmatrix = createModelMatrix({0, 0, 0}, {0, 0, 0});
-        m_shader.loadUniform("modelMatrix", modelmatrix);
-        m_terrain.render(lod);
+        for (auto& terrain : m_terrains) {
+            //  if (m_frustum.terrainInView(terrain.position)) {
+            terrainSectionsRendered++;
+            auto modelmatrix = createModelMatrix(
+                {terrain.position.x * TERRAIN_SIZE, 0, terrain.position.y * TERRAIN_SIZE},
+                {0, 0, 0});
+            m_shader.loadUniform("modelMatrix", modelmatrix);
+            terrain.render(lod);
+            //  }
+        }
     }
+
+    if (ImGui::Begin("Scene Info")) {
+        ImGui::Text("Terrain Rendered: %d/%lu", terrainSectionsRendered,
+                    m_terrains.size());
+    }
+    ImGui::End();
 }
 
 void InGameScreen::showPauseMenu()
