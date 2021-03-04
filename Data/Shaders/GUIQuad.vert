@@ -10,6 +10,7 @@ vec2 vertexCoord[4] = vec2[](
     vec2( 1.0,  1.0)
 );
 
+
 vec2 textureCoord[4] = vec2[](
     vec2(0.0, 0.0),
     vec2(1.0, 0.0),
@@ -22,6 +23,8 @@ int indices[6] = int[](
 );
 
 out vec2 passTexCoord;
+
+uniform float scale;
 
 void main() {
     int i = indices[gl_VertexID];
