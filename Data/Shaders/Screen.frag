@@ -1,4 +1,4 @@
-#version 330
+#version 450
 
 in vec2 passTexCoord;
 out vec4 outColour;

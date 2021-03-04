@@ -69,8 +69,8 @@ int main()
         contextSettings.depthBits = 24;
         contextSettings.stencilBits = 8;
         contextSettings.antialiasingLevel = 4;
-        contextSettings.majorVersion = 3;
-        contextSettings.minorVersion = 3;
+        contextSettings.majorVersion = 4;
+        contextSettings.minorVersion = 5;
         contextSettings.attributeFlags = sf::ContextSettings::Core;
         window.create({1600, 900}, "yare", sf::Style::Close, contextSettings);
         window.setPosition(
