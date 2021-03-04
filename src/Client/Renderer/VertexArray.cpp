@@ -138,7 +138,7 @@ void Drawable::drawArrays(int count, DrawMode mode) const
     glDrawArrays(mode, 0, count);
 }
 
-void Drawable::draw(int count, GLuint start, DrawMode mode) const
+void Drawable::drawElements(int count, GLuint start, DrawMode mode) const
 {
     glDrawElements(mode, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GLuint)));
 }
@@ -146,12 +146,12 @@ void Drawable::draw(int count, GLuint start, DrawMode mode) const
 void Drawable::bindDrawElements(int count, GLuint start, DrawMode mode) const
 {
     bind();
-    draw(count, start, mode);
+    drawElements(count, start, mode);
 }
 
-void Drawable::draw(GLuint start, DrawMode mode) const
+void Drawable::drawElements(GLuint start, DrawMode mode) const
 {
-    draw(indicesCount, start, mode);
+    drawElements(indicesCount, start, mode);
 }
 
 void Drawable::bindDrawElements(GLuint start, DrawMode mode) const

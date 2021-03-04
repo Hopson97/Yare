@@ -43,6 +43,9 @@ class InGameScreen final : public Screen {
     Shader m_shader;
     Shader m_waterShader;
 
+    Shader m_guiDebugShader;
+    VertexArray m_guiDebugQuad;
+
     std::vector<Terrain> m_terrains;
     std::vector<Terrain> m_waters;
 
