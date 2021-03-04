@@ -9,6 +9,9 @@
 enum class ShaderType {
     Vertex = GL_VERTEX_SHADER,
     Fragment = GL_FRAGMENT_SHADER,
+    TessellationControl = GL_TESS_CONTROL_SHADER,
+    TessellationEval = GL_TESS_EVALUATION_SHADER,
+
 };
 
 class Shader final {
