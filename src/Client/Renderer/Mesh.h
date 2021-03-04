@@ -10,6 +10,8 @@
 #include "Colour.h"
 #include "VertexArray.h"
 
+constexpr int TERRAIN_SIZE = 256;
+
 struct Mesh final {
     /*
     struct Vertex {
@@ -32,7 +34,7 @@ struct Terrain {
         GLuint count = 0;
     };
     std::vector<LOD> lods;
-
+    glm::vec2 position;
     VertexArray vao;
 
     void createTerrainMesh(bool createBumps);
