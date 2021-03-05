@@ -48,6 +48,22 @@ void Shader::bind()
 
 void Shader::addShader(const std::string& filename, ShaderType type)
 {
+    std::string extension = [&]() {
+        switch (type) {
+            case ShaderType::Vertex:
+                return ".vert";
+
+            case ShaderType::Fragment:
+                return ".frag";
+
+            case ShaderType::TessellationControl:
+                return ".tc";
+
+            case ShaderType::TessellationEval:
+                return ".te";
+        }
+        return "";
+    }();
     std::string ext = (type == ShaderType::Vertex ? ".vert" : ".frag");
     std::string source = loadFile("Data/Shaders/" + filename + ext);
     auto shaderId = glCreateShader(static_cast<GLenum>(type));

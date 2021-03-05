@@ -69,7 +69,7 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_guiDebugShader.addShader("GUIQuad", ShaderType::Fragment);
     m_guiDebugShader.linkShaders();
     m_guiDebugShader.bind();
-    //m_guiDebugShader.loadUniform("scale", 1.0f);
+    // m_guiDebugShader.loadUniform("scale", 1.0f);
 
     m_waterShader.loadUniform("reflectionSampler", 0);
     m_guiDebugShader.loadUniform("tex", 0);

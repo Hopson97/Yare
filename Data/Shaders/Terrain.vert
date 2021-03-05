@@ -10,6 +10,8 @@ uniform vec3 lightPosition;
 
 flat out vec4 passColour;
 
+out vec4 
+
 uniform vec4 clippingPlane;
 
 void calcuateVertexColour(vec3 fragmentPos)
