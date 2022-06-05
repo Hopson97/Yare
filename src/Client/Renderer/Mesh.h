@@ -10,7 +10,7 @@
 #include "Colour.h"
 #include "VertexArray.h"
 
-constexpr int TERRAIN_SIZE = 128;
+constexpr int TERRAIN_SIZE = 256;
 
 struct Mesh final {
     /*

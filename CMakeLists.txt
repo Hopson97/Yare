@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
 
 #Set up project
-project(yare VERSION 1.0)
+project(
+    rfrr 
+    VERSION 1.0
+)
+
+include(${CMAKE_BINARY_DIR}/../conanbuildinfo.cmake)
+conan_basic_setup()
+
 
 #Set executable
-add_library(yare-lib
+add_executable(${PROJECT_NAME}     
     src/Client/Renderer/Framebuffer.cpp
     src/Client/Renderer/GLDebug.cpp 
     src/Client/Renderer/Mesh.cpp
@@ -23,56 +30,44 @@ add_library(yare-lib
 
 
     src/Maths.cpp
-)
-
-add_executable(yare
     src/main.cpp
 )
 
-#Set module path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
+#Set C++17
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
+
+#Set flags
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "/Ox")
+  	target_compile_options(${PROJECT_NAME} PRIVATE 
+    	/W4)
+else()
+  	target_compile_options(${PROJECT_NAME} PRIVATE 
+		-Wall -Wextra -pedantic)		
+endif()
+
 
 #Find libraries
 find_package(Threads)
-find_package(SFML REQUIRED audio network graphics window system)
 
 add_subdirectory(deps/imgui)
 add_subdirectory(deps/imgui_impl)
 add_subdirectory(deps/glad)
-add_subdirectory(deps/glm)
 
-function(setup_target TARGET)
-    #Set C++17
-    target_compile_features(${TARGET} PUBLIC cxx_std_17)
-    set_target_properties(${TARGET} PROPERTIES CXX_EXTENSIONS OFF)
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE
+    deps
+)
 
-    #Set flags
-    if(MSVC)
-        target_compile_options(${TARGET} PRIVATE 
-            /W4 /WX)
-    else()
-        target_compile_options(${TARGET} PRIVATE 
-            -Wall -Wextra -pedantic -Werror)
-    endif()
-
-    target_include_directories(
-        ${TARGET}
-        PRIVATE
-        deps
-    )
-endfunction(setup_target)
-
-setup_target(yare-lib)
-setup_target(yare)
-
-target_link_libraries(yare
-yare-lib
+#Finally
+target_link_libraries(${PROJECT_NAME} 
     glad
     imgui
-    glm
     imgui_impl
     Threads::Threads 
-    ${SFML_LIBRARIES} 
-    ${SFML_DEPENDENCIES}
     ${CMAKE_DL_LIBS}
+    ${CONAN_LIBS}
 )

@@ -1,3 +1,4 @@
 #!/bin/bash
+
 sh scripts/build.sh
-gdb ./bin/debug/yare 
+gdb ./build/debug/bin/rfrr 

@@ -17,8 +17,8 @@
 
 // This is from here: https://github.com/ocornut/imgui/pull/2731/files
 
-#include "../imgui/imgui.h"
 #include "imgui_impl_sfml.h"
+#include "../imgui/imgui.h"
 
 // SFML
 #include <SFML/Graphics.hpp>
@@ -40,15 +40,15 @@ static bool g_MouseJustPressed[5] = {false, false, false, false, false};
 static unsigned int g_JoystickIndex = 0;
 
 #ifdef SFML_WINDOW_AND_CURSOR_PRESENT
-static sf::Cursor g_MouseCursors[ImGuiMouseCursor_COUNT];
-static std::string g_ClipboardContents;
+static sf::Cursor* g_MouseCursors;
+static std::string* g_ClipboardContents;
 #endif
 
 static const char* ImGui_ImplSfml_GetClipboardText(void*)
 {
 #ifdef SFML_WINDOW_AND_CURSOR_PRESENT
-    g_ClipboardContents = sf::Clipboard::getString();
-    return g_ClipboardContents.c_str();
+    *g_ClipboardContents = sf::Clipboard::getString();
+    return g_ClipboardContents->c_str();
 #else
     return "";
 #endif
@@ -109,6 +109,7 @@ bool ImGui_ImplSfml_Init(sf::Window* window, unsigned int joystickIndex)
 #endif
 
 #ifdef SFML_WINDOW_AND_CURSOR_PRESENT
+    g_MouseCursors = new sf::Cursor[ImGuiMouseCursor_COUNT];
     g_MouseCursors[ImGuiMouseCursor_Arrow].loadFromSystem(sf::Cursor::Arrow);
     g_MouseCursors[ImGuiMouseCursor_TextInput].loadFromSystem(sf::Cursor::Text);
     g_MouseCursors[ImGuiMouseCursor_ResizeAll].loadFromSystem(sf::Cursor::SizeAll);
@@ -123,9 +124,7 @@ bool ImGui_ImplSfml_Init(sf::Window* window, unsigned int joystickIndex)
     return true;
 }
 
-void ImGui_ImplSfml_Shutdown()
-{
-}
+void ImGui_ImplSfml_Shutdown() {}
 
 static void ImGui_ImplSfml_UpdateMousePosAndButtons()
 {
@@ -151,7 +150,7 @@ static void ImGui_ImplSfml_UpdateMousePosAndButtons()
         if (io.WantSetMousePos) {
             sf::Mouse::setPosition(
                 sf::Vector2i((int)mouse_pos_backup.x, (int)mouse_pos_backup.y),
-                                   *g_Window);
+                *g_Window);
         }
         else {
             sf::Vector2i mouse = sf::Mouse::getPosition(*g_Window);

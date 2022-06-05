@@ -65,19 +65,12 @@ InGameScreen::InGameScreen(ScreenManager& screens)
     m_waterShader.bind();
     m_waterShader.loadUniform("lightPosition", {10, 100, 10});
 
-    m_guiDebugShader.addShader("GUIQuad", ShaderType::Vertex);
-    m_guiDebugShader.addShader("GUIQuad", ShaderType::Fragment);
-    m_guiDebugShader.linkShaders();
-    m_guiDebugShader.bind();
-    //m_guiDebugShader.loadUniform("scale", 1.0f);
-
     m_waterShader.loadUniform("reflectionSampler", 0);
-    m_guiDebugShader.loadUniform("tex", 0);
     // m_waterShader.loadUniform("normalTexture", 1);
     // m_waterShader.loadUniform("displaceTexture", 2);
 
-    for (int z = 0; z < 1; z++) {
-        for (int x = 0; x < 1; x++) {
+    for (int z = 0; z < 3; z++) {
+        for (int x = 0; x < 3; x++) {
             Terrain& t = m_terrains.emplace_back();
             t.position = {x, z};
             t.createTerrainMesh(false);
@@ -208,10 +201,6 @@ void InGameScreen::onRender(Framebuffer& framebuffer)
         //  }
     }
 
-    m_guiDebugQuad.bind();
-    m_guiDebugShader.bind();
-    m_guiDebugQuad.getDrawable().drawArrays();
-
     glCullFace(GL_BACK);
     if (m_isPaused) {
         if (m_isSettingsOpened) {
@@ -247,7 +236,7 @@ void InGameScreen::renderScene(const glm::vec4& clippingPlane)
             cube.second.z++;
             m_shader.loadUniform("modelMatrix", modelmatrix);
 
-            cubeDrawable.drawElements();
+            cubeDrawable.draw();
         }
     }
     // Render terrain

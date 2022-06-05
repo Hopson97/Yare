@@ -24,9 +24,7 @@ namespace sf {
     class Window;
 } // namespace sf
 
-IMGUI_IMPL_API bool ImGui_ImplSfml_Init(sf::Window* window,
-                                        unsigned int joystickIndex = 0);
-IMGUI_IMPL_API void ImGui_ImplSfml_Shutdown();
-IMGUI_IMPL_API void ImGui_ImplSfml_NewFrame();
-
-IMGUI_IMPL_API void ImGui_ImplSfml_ProcessEvent(const sf::Event& event);
+bool ImGui_ImplSfml_Init(sf::Window* window, unsigned int joystickIndex = 0);
+void ImGui_ImplSfml_Shutdown();
+void ImGui_ImplSfml_NewFrame();
+void ImGui_ImplSfml_ProcessEvent(const sf::Event& event);

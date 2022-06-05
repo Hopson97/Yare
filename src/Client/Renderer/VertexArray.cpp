@@ -4,10 +4,7 @@
 #include <cassert>
 #include <iostream>
 
-VertexArray::VertexArray()
-{
-    glGenVertexArrays(1, &m_vertexArray);
-}
+VertexArray::VertexArray() { glGenVertexArrays(1, &m_vertexArray); }
 
 VertexArray& VertexArray::operator=(VertexArray&& other) noexcept
 {
@@ -38,20 +35,11 @@ VertexArray::~VertexArray()
     }
 }
 
-Drawable VertexArray::getDrawable() const
-{
-    return {m_vertexArray, m_indicesCount};
-}
+Drawable VertexArray::getDrawable() const { return {m_vertexArray, m_indicesCount}; }
 
-void VertexArray::bind() const
-{
-    glBindVertexArray(m_vertexArray);
-}
+void VertexArray::bind() const { glBindVertexArray(m_vertexArray); }
 
-GLsizei VertexArray::indicesCount() const
-{
-    return m_indicesCount;
-}
+GLsizei VertexArray::indicesCount() const { return m_indicesCount; }
 
 void VertexArray::addAttribute(const std::vector<glm::vec2>& data)
 {
@@ -82,7 +70,7 @@ void VertexArray::addAttribute(const std::vector<Colour>& data)
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0]) * 4, data.data(),
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(data[0].r) * 4, data.data(),
                  GL_STATIC_DRAW);
 
     // TODO See if nullptr works in place of the GLvoid cast
@@ -122,10 +110,7 @@ Drawable::Drawable(GLuint vao, GLsizei indices)
 {
 }
 
-void setPolygonMode(PolygonMode mode)
-{
-    glPolygonMode(GL_FRONT_AND_BACK, mode);
-}
+void setPolygonMode(PolygonMode mode) { glPolygonMode(GL_FRONT_AND_BACK, mode); }
 
 void Drawable::bind() const
 {
@@ -138,7 +123,7 @@ void Drawable::drawArrays(int count, DrawMode mode) const
     glDrawArrays(mode, 0, count);
 }
 
-void Drawable::drawElements(int count, GLuint start, DrawMode mode) const
+void Drawable::draw(int count, GLuint start, DrawMode mode) const
 {
     glDrawElements(mode, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GLuint)));
 }
@@ -146,12 +131,12 @@ void Drawable::drawElements(int count, GLuint start, DrawMode mode) const
 void Drawable::bindDrawElements(int count, GLuint start, DrawMode mode) const
 {
     bind();
-    drawElements(count, start, mode);
+    draw(count, start, mode);
 }
 
-void Drawable::drawElements(GLuint start, DrawMode mode) const
+void Drawable::draw(GLuint start, DrawMode mode) const
 {
-    drawElements(indicesCount, start, mode);
+    draw(indicesCount, start, mode);
 }
 
 void Drawable::bindDrawElements(GLuint start, DrawMode mode) const
