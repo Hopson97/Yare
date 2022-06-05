@@ -119,13 +119,16 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
     }
 
     if (mouse) {
-        static sf::Vector2i m_lastMousePosition;
-        sf::Vector2i change = sf::Mouse::getPosition(window) - m_lastMousePosition;
-        m_player.rotation.x += static_cast<float>(change.y / 8.0f * 0.5);
-        m_player.rotation.y += static_cast<float>(change.x / 8.0f * 0.5);
-        sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2},
-                               window);
-        m_lastMousePosition = sf::Mouse::getPosition(window);
+        static auto lastMousePosition = sf::Mouse::getPosition(window);
+        auto change = sf::Mouse::getPosition(window) - lastMousePosition;
+        m_player.rotation.x += static_cast<float>(change.y * 0.5);
+        m_player.rotation.y += static_cast<float>(change.x * 0.5);
+        std::cout << "Mouse set!\n";
+        lastMousePosition = sf::Mouse::getPosition(window);
+
+        m_player.rotation.x = glm::clamp(m_player.rotation.x, -89.9f, 89.9f);
+        m_player.rotation.y =
+            static_cast<float>(static_cast<int>(m_player.rotation.y) % 360);
     }
 
     auto SPEED = 20.2f;
