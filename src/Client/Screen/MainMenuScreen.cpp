@@ -16,7 +16,7 @@ void MainMenuScreen::onRender(Framebuffer&)
     switch (m_activeMenu) {
         case Menu::MainMenuScreen:
             if (imguiBeginCustom("M A I N   M E N U")) {
-                ImGui::Text("O P E N   B U I L D E R");
+                ImGui::Text("Y A R E");
                 ImGui::Separator();
                 if (imguiButtonCustom("Start Game")) {
                     m_pScreens->pushScreen(std::make_unique<InGameScreen>(*m_pScreens));

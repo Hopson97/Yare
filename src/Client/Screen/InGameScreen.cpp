@@ -123,7 +123,6 @@ void InGameScreen::onInput(const sf::Window& window, const Keyboard& keyboard)
         auto change = sf::Mouse::getPosition(window) - lastMousePosition;
         m_player.rotation.x += static_cast<float>(change.y * 0.5);
         m_player.rotation.y += static_cast<float>(change.x * 0.5);
-        std::cout << "Mouse set!\n";
         lastMousePosition = sf::Mouse::getPosition(window);
 
         m_player.rotation.x = glm::clamp(m_player.rotation.x, -89.9f, 89.9f);

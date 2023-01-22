@@ -1,6 +1,6 @@
-# rfrr
+# yare
 
-description here
+Yet another render engine...
 
 ### Windows (Visual Studio)
 
@@ -22,21 +22,20 @@ Finally, under `Linker > Input`, add OpenGL32.lib as an additional dependancy.
 
 ### Linux
 
-Requires conan w/ bincrafters and cmake.
-
-```sh
-python3 -m pip install conan
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-conan remote update bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-```
 
 To build, at the root of the project:
 
 ```sh
-sh scripts/build.sh install
+sh scripts/build.sh install # only needed for the first time
 ```
 
 The install argument is only needed for the first time compilation as this is what grabs the libraries from Conan
+
+After that, you can simply run:
+
+```sh
+sh scripts/build.sh
+```
 
 To run, at the root of the project:
 
@@ -50,5 +49,3 @@ To build and run in release mode, simply add the `release` suffix:
 sh scripts/build.sh release
 sh scripts/run.sh release
 ```
-
-[]: https://www.sfml-dev.org/download/sfml/2.5.1/
